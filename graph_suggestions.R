@@ -174,6 +174,70 @@ ggplot(emm_df, aes(x = snr_ctr, y = yvar, col = cond)) +
   labs(x = "Trial", y = "Predicted pupil area [a.u.]") +
   theme(legend.position = "bottom")
 
+# in deren Grafik sind ja dann noch die individuellen Effekte, damit befassen wir uns nun...
+
+# die individuellen SNR-Trends kriegt man nur in brms
+# weil wir dafür das Modell mit dem snr-Slope schäten müssen
+library(brms)
+library(posterior)
+# Modell von oben replizieren, Koeffizienten etc. passen
+# m2 <- pa ~ snr_ctr * trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+# fm2_bayes <- brm(m2, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+# summary(fm2_bayes)
+# plot(fm2_bayes)
+# pp_check(fm2_bayes, ndraws = 100)
+
+# nun das Modell mit dem snr und der condition Interaktion, so bekommt
+# jede Person einen individuellen SNR-Slope in jeder Bedingung
+m3 <- pa ~ snr_ctr * trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+fm3_bayes <- brm(m3, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+summary(fm3_bayes)
+plot(fm3_bayes)
+pp_check(fm3_bayes, ndraws = 100)
+
+# ranef(fm3_bayes)$subj[,"Estimate",]
+
+### individuelle Effekte rausholen
+ind_slopes <- data.frame(subj = unique(dat_vp$subj),
+  slopes_intact = coef(fm3_bayes)$subj[,"Estimate", "snr_ctr"],
+  slopes_scrambled = rowSums(coef(fm3_bayes)$subj[,"Estimate", c("snr_ctr","snr_ctr:condScrambled")]))
+
+ind_slopes_long <- pivot_longer(data = ind_slopes, cols = !c(subj), 
+                                   names_to = "cond", values_to = "slopes")
+
+ind_slopes_long$cond <- factor(ind_slopes_long$cond, labels = levels(dat$cond))
+
+### mittlere Effekte umrechnen 
+# extrahiere posteriori Werte der Koeffizienten
+posterior_samples <- as_draws(fm3_bayes, variable = c("b_snr_ctr", "b_snr_ctr:condScrambled"))
+posterior_samples <- merge_chains(posterior_samples, variable = c("b_snr_ctr", "b_snr_ctr:condScrambled"))
+posterior_samples <- as_draws_df(posterior_samples)
+
+# Man kann aus der Posterior die KIs bestimmen, erstmal als Demo/Check
+fixef(fm3_bayes)["snr_ctr",]
+quantile(posterior_samples$b_snr_ctr, probs = c(0.025, 0.975))
+# für den Effekt in der anderen Bedingung, muss man die Koeffizienten addieren
+posterior_samples$b_snr_ctr_scrambled <- posterior_samples$b_snr_ctr + posterior_samples$`b_snr_ctr:condScrambled`
+
+# berechne die mittleren slopes der beiden Bedingungen und generiere die KIs dafür
+# aus den posteriori Quantilen
+CIs <- apply(posterior_samples[,c("b_snr_ctr","b_snr_ctr_scrambled")], 2, quantile, probs = c(0.025, 0.975))
+CIs
+
+avg_slopes <- data.frame(cond = levels(dat$cond), 
+                         slopes = colMeans(posterior_samples[,c("b_snr_ctr","b_snr_ctr_scrambled")]),
+                         CIs = t(CIs))
+
+ggplot(ind_slopes_long, aes(x = cond, y = slopes, group = subj, col = cond)) +
+  geom_point(alpha = 0.3) +
+  geom_line(alpha = 0.3, col = "gray") +
+  geom_point(data = avg_slopes, aes(group = NULL), size = 5) +
+  geom_errorbar(data = avg_slopes, aes(group = NULL, min = CIs.2.5., max = CIs.97.5.)) +
+  scale_color_manual(values = okabe[c(6,8)]) +
+  theme(legend.position = "bottom") 
+
+#### @ Andreas: eine überdenkenswerte Sache hier wäre: 
+#### im Moment zeige ich ja den Slope des SNR im mittleren Trial, ist das gut?
 
 
 
@@ -182,6 +246,6 @@ ggplot(emm_df, aes(x = snr_ctr, y = yvar, col = cond)) +
 #  dass sich die Veränderung des Effektes im Verlauf des Experimentes auswerten lässt.
 
 ### TO-DO FS ###
-### Individual REs für snr für (2) als model implied version
 ### CONDOTIONAL EFFEKT PLOTTEN für (3)
+
 
