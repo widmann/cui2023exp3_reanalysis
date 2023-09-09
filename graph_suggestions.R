@@ -192,7 +192,7 @@ library(posterior)
 m3 <- pa ~ snr_ctr * trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
 fm3_bayes <- brm(m3, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
 summary(fm3_bayes)
-plot(fm3_bayes)
+# plot(fm3_bayes)
 pp_check(fm3_bayes, ndraws = 100)
 
 # ranef(fm3_bayes)$subj[,"Estimate",]
@@ -245,7 +245,38 @@ ggplot(ind_slopes_long, aes(x = cond, y = slopes, group = subj, col = cond)) +
 #  wenn man die Interaktion zulässt. Botschaft: Pupille ist sogar so sensitiv, 
 #  dass sich die Veränderung des Effektes im Verlauf des Experimentes auswerten lässt.
 
-### TO-DO FS ###
-### CONDOTIONAL EFFEKT PLOTTEN für (3)
+# aus dem polynomialen Modell heraus:
+summary(fm3_bayes)
+conditions <- make_conditions(fm3_bayes, vars = c("trial_ctr"))
+
+my_plot <- conditional_effects(fm3_bayes, effects = "snr_ctr:cond", 
+                    conditions = conditions,
+                    # re_formula = NULL)
+                    re_formula = NA)
+plot(my_plot) 
 
 
+## aus einem smoothing spline heraus (ohne Annahme bestimmter Verlaufsformen)
+
+m4 <- pa ~ s(snr_ctr,trial_ctr, by = cond) + s(trial_ctr, subj, bs = 'fs', m=1) + (1 + cond| subj)
+# m4 <- pa ~ s(snr_ctr,trial_ctr, by = cond) + (1 + cond| subj)
+fm4_bayes <- brm(m4, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+summary(fm4_bayes)
+# plot(fm4_bayes) 
+pp_check(fm4_bayes, ndraws = 100)
+
+
+plot(conditional_smooths(fm4_bayes, 
+                         rug = TRUE, 
+                         ask = FALSE, 
+                         spaghetti = TRUE,
+                         nt_conditions = list(trial_ctr = quantile)), stype = "raster")
+
+
+conditions <- make_conditions(fm4_bayes, vars = c("trial_ctr"))
+conditional_effects(fm4_bayes, effects = "snr_ctr:cond", 
+                    conditions = conditions,
+                    # re_formula = NULL)
+                    re_formula = NA)
+
+save(file = "allFits.Rdata", list = ls())
