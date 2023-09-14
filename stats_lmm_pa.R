@@ -6,6 +6,7 @@ library(emmeans)
 library(sjPlot)
 library(dplyr)
 library(tidyr)
+library(optimx)
 
 options(scipen = 4, width = 100)
 rm(list = ls())
@@ -42,8 +43,8 @@ ggsave("pa_time-on-task.pdf", device = "pdf", width = 12 / 2.54, height = 9 / 2.
 
 # SNR
 m1 <- pa ~ snr_ctr * cond + (1 + cond | subj )
-# fm1 <- lmer(m1, data = dat, control = lmerControl(calc.derivs = F), REML = F)
-fm1 <- lmer(m1, data = dat[dat$trial > 1 & dat$trial < 22,], control = lmerControl(calc.derivs = F), REML = F)
+fm1 <- lmer(m1, data = dat, control = lmerControl(calc.derivs = F), REML = F)
+# fm1 <- lmer(m1, data = dat[dat$trial > 1 & dat$trial < 22,], control = lmerControl(calc.derivs = F), REML = F)
 summary(fm1)
 r.squaredGLMM(fm1)
 tab_model(fm1, digits = 3)
@@ -51,14 +52,16 @@ tab_model(fm1, digits = 3)
 # SNR x cond
 # dat$cond = relevel(dat$cond, ref = "Intact" )
 # dat$cond = relevel(dat$cond, ref = "Scrambled" )
-m1 <- pa ~ snr_ctr * cond + trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + cond | subj ) + (0 + trial_ctr + I(trial_ctr ^ 2) | subj)
-fm1 <- lmer(m1, data = dat, control = lmerControl(calc.derivs = F), REML = F)
-summary(fm1)
-r.squaredGLMM(fm1)
-tab_model(fm1, digits = 3)
+m2 <- pa ~ snr_ctr * cond + trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + snr_ctr + cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+fm2 <- lmer(m2, data = dat,
+            control = lmerControl(calc.derivs = F, optimizer ='optimx', optCtrl=list(method='nlminb')),
+            REML = F)
+summary(fm2)
+r.squaredGLMM(fm2)
+tab_model(fm2, digits = 3)
 
-emm_df <- emmip(fm1, cond ~ snr_ctr, at = list(trial_ctr=-10.5:10.5, snr_ctr=-2:2), plotit = F)
-# emm_df <- emmip(fm1, cond ~ snr_ctr, at = list(snr_ctr=-2:2), plotit = F)
+emm_df <- emmip(fm2, cond ~ snr_ctr, at = list(trial_ctr=-10.5:10.5, snr_ctr=-2:2), plotit = F)
+# emm_df <- emmip(fm2, cond ~ snr_ctr, at = list(snr_ctr=-2:2), plotit = F)
 emm_df$snr = emm_df$snr_ctr * 5 + 6
 ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
   # geom_ribbon(aes(min = yvar - SE * 1.96, max = yvar + SE * 1.96, fill = cond), color = NA, alpha = 0.15) +
@@ -72,13 +75,15 @@ ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
 ggsave("pa_snrxcond.pdf", device = "pdf", width = 12 / 2.54, height = 9 / 2.54)
 
 # SNR x trial x cond
-m2 <- pa ~ snr_ctr * trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + cond | subj ) + (0 + trial_ctr + I(trial_ctr ^ 2) | subj)
-fm2 <- lmer(m2, data = dat, control = lmerControl(calc.derivs = F), REML = F)
-summary(fm2)
-r.squaredGLMM(fm2)
+m3 <- pa ~ snr_ctr * trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + snr_ctr + cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+fm3 <- lmer(m3, data = dat,
+            control = lmerControl(calc.derivs = F, optimizer ='optimx', optCtrl=list(method='nlminb')),
+            REML = F)
+summary(fm3)
+r.squaredGLMM(fm3)
 
-anova(fm1, fm2)
-gg <- emmip(fm2, cond ~ snr_ctr | trial_ctr, at = list(trial_ctr=-10.5:10.5, snr_ctr=-2:2), col = okabe[c(6,8)])
+anova(fm2, fm3)
+gg <- emmip(fm3, cond ~ snr_ctr | trial_ctr, at = list(trial_ctr=-10.5:10.5, snr_ctr=-2:2), col = okabe[c(6,8)])
 gg +
   scale_color_manual(values = okabe[c(6,8)]) +
   scale_x_continuous(breaks = -2:2, labels = c("-4","1","6","11","16")) +
@@ -86,7 +91,7 @@ gg +
   theme(legend.position = "bottom")
 ggsave("pa_condxsnrxtrial-1.pdf", device = "pdf", width = 18 / 2.54, height = 12 / 2.54)
 
-emt <- emtrends(fm2, ~ cond + trial_ctr, var = "snr_ctr", at = list(trial_ctr=-10.5:10.5, snr_ctr=-2:2))
+emt <- emtrends(fm3, ~ cond + trial_ctr, var = "snr_ctr", at = list(trial_ctr=-10.5:10.5, snr_ctr=-2:2))
 emmeans(emt, ~ cond + trial_ctr)
 emt_df <- emmip(emt, ~ trial_ctr + cond, plotit = F)
 
