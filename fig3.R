@@ -59,6 +59,7 @@ ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
   labs(color = "Condition", fill = "Condition") +
   labs(x = "SNR [dB]", y = "Predicted pupil area [a.u.]") +
   theme(legend.position = "bottom")
+ggsave("fig3a_ctr.pdf", device = "pdf", width = 16 / 2.54, height = 7 / 2.54)
 
 #### Panel B: SNR slope x cond x trial_ctr
 
@@ -74,6 +75,10 @@ ggplot(emt_df, aes(x = trial, y = yvar, col = cond)) +
   geom_point(shape = 16, size = 3) +
   scale_color_manual(values = okabe[c(6,8)]) +
   scale_fill_manual(values = okabe[c(6,8)]) +
+  scale_x_continuous(limits=c(0.75, 22.25), expand = c(0, 0), breaks = seq(2,22,2)) +
+  scale_y_continuous(breaks = seq(-30,20,10)) +
+  facet_wrap(~ "Slope x Trial x Condition") +
   labs(color = "Condition", fill = "Condition") +
   labs(x = "Trial #", y = "Change in pupil area/+5 dB SNR [a.u.]") +
   theme(legend.position = "bottom")
+ggsave("fig3b_ctr.pdf", device = "pdf", width = 15.841 / 2.54, height = 7 / 2.54)

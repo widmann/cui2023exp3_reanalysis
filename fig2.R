@@ -1,5 +1,7 @@
 library(ggplot2)
 library(emmeans)
+library(brms)
+library(tidyr)
 
 options(scipen = 4, width = 100)
 rm(list = ls())
@@ -33,7 +35,7 @@ emm_df$snr = emm_df$snr_ctr * 5 + 6
 ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
   geom_ribbon(aes(min = LCL, max = UCL, fill = cond), color = NA, alpha = 0.15) +
   geom_line() +
-  geom_point(shape = 16, size = 3) +
+  geom_point(shape = 16, size = 5) +
   scale_fill_manual(values = okabe[c(6,8)]) +
   scale_color_manual(values = okabe[c(6,8)]) +
   facet_wrap(~ cond) +
@@ -84,7 +86,8 @@ ggplot(ind_slopes_long, aes(x = cond, y = slopes, group = subj, fill = cond, col
   geom_line(alpha = 0.4, col = "gray") +
   geom_point(shape = 16, data = avg_slopes, aes(group = NULL), size = 5) +
   geom_errorbar(data = avg_slopes, aes(group = NULL, min = CIs.2.5., max = CIs.97.5.), width = 0.1) +
+  facet_grid(~ "Slope") +
   scale_color_manual(values = okabe[c(6,8)]) +
-  labs(y = "Change in pupil area/+5 dB SNR [a.u.]") +
+  labs(x = "Condition", y = "Change in pupil area/+5 dB SNR [a.u.]") +
   theme(legend.position = "bottom") 
-ggsave("fig2b_ctr.pdf", device = "pdf", width = 12 / 2.54, height = 9 / 2.54)
+ggsave("fig2b_ctr.pdf", device = "pdf", width = 4 / 2.54, height = 9 / 2.54)
