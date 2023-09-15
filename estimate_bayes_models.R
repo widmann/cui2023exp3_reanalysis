@@ -6,7 +6,8 @@ load(file = "data.Rdata")
 
 #### SNR x cond ----
 m1a <- pa_ctr ~ snr_ctr * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
-fm1a_bayes <- brm(m1a, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+fm1a_bayes <- brm(m1a, data = dat, cores = 4, iter = 100000, control = list(adapt_delta = 0.9),
+                  save_pars = save_pars(all = TRUE))
 
 # Warning messages:
 # 1: There were 3 divergent transitions after warmup. See
@@ -24,7 +25,8 @@ summary(fm1a_bayes)
 
 #### SNR x cond + trial_ctr x cond ----
 m2a <- pa_ctr ~ snr_ctr * cond + trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
-fm2a_bayes <- brm(m2a, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+fm2a_bayes <- brm(m2a, data = dat, cores = 4, iter = 100000, control = list(adapt_delta = 0.9),
+                  save_pars = save_pars(all = TRUE))
 
 summary(fm2a_bayes)
 # plot(fm2a_bayes)
@@ -33,7 +35,8 @@ summary(fm2a_bayes)
 
 #### SNR x cond x trial_ctr ----
 m3a <- pa_ctr ~ snr_ctr * cond * trial_ctr + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
-fm3a_bayes <- brm(m3a, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+fm3a_bayes <- brm(m3a, data = dat, cores = 4, iter = 100000, control = list(adapt_delta = 0.9),
+                  save_pars = save_pars(all = TRUE))
 
 get_prior(m3a,data = dat)
 
