@@ -26,28 +26,28 @@ load("bayes_models.Rdata")
 #  dass sich die Veränderung des Effektes im Verlauf des Experimentes auswerten lässt.
 
 # aus dem polynomialen Modell heraus:
-summary(fm3a_bayes)
-# conditions <- make_conditions(fm3_bayes, vars = c("trial_ctr"))
-conditions = cbind(trial_ctr = c(-7.5,-3.5,0.5,4.5,8.5), cond__ = c(-7.5,-3.5,0.5,4.5,8.5) + 10.5)
-my_plot <- conditional_effects(fm3a_bayes, effects = "snr_ctr:cond", 
-                               conditions = conditions,
-                               # re_formula = NULL)
-                               re_formula = NA)
-plot(my_plot, plot = FALSE)[[1]] +
-  scale_fill_manual(values = okabe[c(6,8)]) +
-  scale_color_manual(values = okabe[c(6,8)]) +
-  facet_wrap(~trial_ctr, ncol = 5) +
-  labs(color = "Condition", fill = "Condition") +
-  labs(x = "SNR [dB]", y = "Predicted pupil area [a.u.]") +
-  theme(legend.position = "bottom")
+# summary(fm3_bayes)
+# # conditions <- make_conditions(fm3_bayes, vars = c("trial_ctr"))
+# conditions = cbind(trial_ctr = c(-7.5,-3.5,0.5,4.5,8.5), cond__ = c(-7.5,-3.5,0.5,4.5,8.5) + 10.5)
+# my_plot <- conditional_effects(fm3_bayes, effects = "snr_ctr:cond", 
+#                                conditions = conditions,
+#                                # re_formula = NULL)
+#                                re_formula = NA)
+# plot(my_plot, plot = FALSE)[[1]] +
+#   scale_fill_manual(values = okabe[c(6,8)]) +
+#   scale_color_manual(values = okabe[c(6,8)]) +
+#   facet_wrap(~trial_ctr, ncol = 5) +
+#   labs(color = "Condition", fill = "Condition") +
+#   labs(x = "SNR [dB]", y = "Predicted pupil area [a.u.]") +
+#   theme(legend.position = "bottom")
 
-emm_df <- rbind(emmip(fm3a_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(-10.5,-5.25), snr_ctr = -2:2), plotit = F, CIs = T),
-                emmip(fm3a_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(-5.25,0), snr_ctr = -2:2), plotit = F, CIs = T),
-                emmip(fm3a_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(0,5.25), snr_ctr = -2:2), plotit = F, CIs = T),
-                emmip(fm3a_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(5.15,10.5), snr_ctr = -2:2), plotit = F, CIs = T))
+emm_df <- rbind(emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(-10.5,-5.25), snr_ctr = -2:2), plotit = F, CIs = T),
+                emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(-5.25,0), snr_ctr = -2:2), plotit = F, CIs = T),
+                emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(0,5.25), snr_ctr = -2:2), plotit = F, CIs = T),
+                emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(5.15,10.5), snr_ctr = -2:2), plotit = F, CIs = T))
 emm_df$range = rep(1:4, each = 10)
 emm_df$snr = emm_df$snr_ctr * 5 + 6
-emm_df$range = factor(emm_df$range, labels = c("Q1", "Q2", "Q3", "Q4"))
+emm_df$range = factor(emm_df$range, labels = c("1st quarter of block", "2nd quarter of block", "3rd quarter of block", "4th quarter of block"))
 
 ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
   geom_ribbon(aes(min = LCL, max = UCL, fill = cond), color = NA, alpha = 0.15) +
@@ -59,12 +59,12 @@ ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
   labs(color = "Condition", fill = "Condition") +
   labs(x = "SNR [dB]", y = "Predicted pupil area [a.u.]") +
   theme(legend.position = "bottom")
-ggsave("fig3a_ctr.pdf", device = "pdf", width = 16 / 2.54, height = 7 / 2.54)
+ggsave("fig3a.pdf", device = "pdf", width = 16 / 2.54, height = 7 / 2.54)
 
 #### Panel B: SNR slope x cond x trial_ctr
 
-emt <- emtrends(fm3a_bayes, ~ cond * trial_ctr, var = "snr_ctr", at = list(trial_ctr=-10.5:10.5, snr_ctr=-2:2))
-# emt <- emtrends(fm3a_bayes, ~ cond * trial_ctr, var = "snr_ctr", at = list(trial_ctr=c(-7.875,-2.625,2.625,7.875), snr_ctr=-2:2))
+emt <- emtrends(fm3_bayes, ~ cond * trial_ctr, var = "snr_ctr", at = list(trial_ctr=-10.5:10.5, snr_ctr=-2:2))
+# emt <- emtrends(fm3_bayes, ~ cond * trial_ctr, var = "snr_ctr", at = list(trial_ctr=c(-7.875,-2.625,2.625,7.875), snr_ctr=-2:2))
 emmeans(emt, ~ cond * trial_ctr)
 emt_df <- emmip(emt, ~ trial_ctr + cond, plotit = F, CIs = T)
 emt_df$trial = emt_df$trial_ctr + 11.5
@@ -75,10 +75,10 @@ ggplot(emt_df, aes(x = trial, y = yvar, col = cond)) +
   geom_point(shape = 16, size = 3) +
   scale_color_manual(values = okabe[c(6,8)]) +
   scale_fill_manual(values = okabe[c(6,8)]) +
-  scale_x_continuous(limits=c(0.75, 22.25), expand = c(0, 0), breaks = seq(2,22,2)) +
+  scale_x_continuous(limits=c(0.75, 22.25), expand = c(0, 0), breaks = seq(1,22,1)) +
   scale_y_continuous(breaks = seq(-30,20,10)) +
   facet_wrap(~ "Slope x Trial x Condition") +
   labs(color = "Condition", fill = "Condition") +
   labs(x = "Trial #", y = "Change in pupil area/+5 dB SNR [a.u.]") +
   theme(legend.position = "bottom")
-ggsave("fig3b_ctr.pdf", device = "pdf", width = 15.841 / 2.54, height = 7 / 2.54)
+ggsave("fig3b.pdf", device = "pdf", width = 15.841 / 2.54, height = 7 / 2.54)
