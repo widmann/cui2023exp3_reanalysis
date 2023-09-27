@@ -4,62 +4,74 @@ options(mc.cores = 4)
 
 load(file = "data.Rdata")
 
-#### SNR x cond ----
-m1a <- pa_ctr ~ snr_ctr * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
-fm1a_bayes <- brm(m1a, data = dat, cores = 4, iter = 100000, control = list(adapt_delta = 0.9),
-                  save_pars = save_pars(all = TRUE))
+# cond x trial_ctr
+m_reduced <- pa ~ trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + cond * trial_ctr + cond * I(trial_ctr ^ 2) | subj)
+m_reduced_bayes <- brm(m_reduced, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
 
-# Warning messages:
-# 1: There were 3 divergent transitions after warmup. See
-# https://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
-# to find out why this is a problem and how to eliminate them. 
+#### SNR x cond ----
+m1 <- pa ~ snr_ctr * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+fm1_bayes <- brm(m1, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+
+# Warnmeldungen:
+#   1: There were 6 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
+# https://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded 
 # 2: Examine the pairs() plot to diagnose sampling problems
 
-# Warning message:
-#   There were 1 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup 
-
-summary(fm1a_bayes)
-# plot(fm1a_bayes)
-# pp_check(fm1a_bayes, ndraws = 100)
+summary(fm1_bayes)
+# plot(fm1_bayes)
+# pp_check(fm1_bayes, ndraws = 100)
 
 
 #### SNR x cond + trial_ctr x cond ----
-m2a <- pa_ctr ~ snr_ctr * cond + trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
-fm2a_bayes <- brm(m2a, data = dat, cores = 4, iter = 100000, control = list(adapt_delta = 0.9),
-                  save_pars = save_pars(all = TRUE))
+m2 <- pa ~ snr_ctr * cond + trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+fm2_bayes <- brm(m2, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
 
-summary(fm2a_bayes)
-# plot(fm2a_bayes)
-# pp_check(fm2a_bayes, ndraws = 100)
+summary(fm2_bayes)
+# plot(fm2_bayes)
+# pp_check(fm2_bayes, ndraws = 100)
 
 
 #### SNR x cond x trial_ctr ----
-m3a <- pa_ctr ~ snr_ctr * cond * trial_ctr + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
-fm3a_bayes <- brm(m3a, data = dat, cores = 4, iter = 100000, control = list(adapt_delta = 0.9),
-                  save_pars = save_pars(all = TRUE))
+m3 <- pa ~ snr_ctr * cond * trial_ctr + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+fm3_bayes <- brm(m3, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
 
-get_prior(m3a,data = dat)
+summary(fm3_bayes)
+# plot(fm3_bayes)
+# pp_check(fm3_bayes, ndraws = 100)
 
-summary(fm3a_bayes)
-# plot(fm3a_bayes)
-# pp_check(fm3a_bayes, ndraws = 100)
 
-save(file = "bayes_models.Rdata", fm1a_bayes, fm2a_bayes, fm3a_bayes)
+#### Fixation duration: SNR x cond x trial_ctr ----
+m3_fd <- fd ~ snr_ctr * cond * trial_ctr + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+fm3_fd_bayes <- brm(m3_fd, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+summary(fm3_fd_bayes)
 
-# Clarke's third law: "Any sufficiently advanced technology is indistinguishable from magic."
 
-fm1a_bayes <- add_criterion(fm1a_bayes, criterion = c("loo", "waic"), reloo = T)
-fm2a_bayes <- add_criterion(fm2a_bayes, criterion = c("loo", "waic"), reloo = T)
-fm3a_bayes <- add_criterion(fm3a_bayes, criterion = c("loo", "waic"), reloo = T)
+#### Spatial gaze dispersion: SNR x cond x trial_ctr ----
+m3_sgdi <- sgd_i ~ snr_ctr * cond * trial_ctr + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+fm3_sgdi_bayes <- brm(m3_sgdi, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+summary(fm3_sgdi_bayes)
 
-save(file = "bayes_models.Rdata", fm1a_bayes, fm2a_bayes, fm3a_bayes)
+save(file = "bayes_models.Rdata", fm1_bayes, fm2_bayes, fm3_bayes, fm3_fd_bayes, fm3_sgdi_bayes, m_reduced_bayes)
 
-#### Compare models
-loo_compare(fm1a_bayes, fm2a_bayes, fm3a_bayes)
+load(file = "bayes_models.Rdata")
+     
+# fm1_bayes <- add_criterion(fm1_bayes, criterion = c("loo", "waic"), reloo = T)
+# fm2_bayes <- add_criterion(fm2_bayes, criterion = c("loo", "waic"), reloo = T)
+# fm3_bayes <- add_criterion(fm3_bayes, criterion = c("loo", "waic"), reloo = T)
+fm1_bayes <- add_criterion(fm1_bayes, criterion = c("waic"))
+fm2_bayes <- add_criterion(fm2_bayes, criterion = c("waic"))
+fm3_bayes <- add_criterion(fm3_bayes, criterion = c("waic"))
 
-mw <- model_weights(fm1a_bayes, fm2a_bayes, fm3a_bayes)
+# save(file = "bayes_models.Rdata", fm1_bayes, fm2_bayes, fm3_bayes, fm3_fd_bayes, fm3_sgdi_bayes, m_reduced_bayes)
+save(file = "bayes_models.Rdata", fm1_bayes, fm2_bayes, fm3_bayes, m_reduced_bayes)
+
+  #### Compare models
+# loo_compare(fm1_bayes, fm2_bayes, fm3_bayes)
+waic(fm2_bayes, fm3_bayes)
+
+mw <- model_weights(fm1_bayes, fm2_bayes, fm3_bayes)
 mw
 mw[3]/mw[2]
 
-bayes_factor(fm2a_bayes,fm1a_bayes)
-bayes_factor(fm3a_bayes,fm2a_bayes)
+bayes_factor(fm2_bayes,fm1_bayes)
+bayes_factor(fm3_bayes,fm2_bayes)
