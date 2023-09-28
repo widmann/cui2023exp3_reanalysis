@@ -2,6 +2,7 @@ library(ggplot2)
 library(emmeans)
 library(dplyr)
 library(tidyr)
+library(brms)
 library(posterior)
 
 options(scipen = 4, width = 100)
@@ -113,8 +114,8 @@ ggplot(ind_slopes_long, aes(x = cond, y = slopes, group = subj, fill = cond, col
   geom_point(shape = 16, alpha = 0.4, size = 2) +
   geom_line(alpha = 0.4, col = "gray") +
   geom_point(shape = 16, data = avg_slopes, aes(group = NULL), size = 5) +
-  geom_errorbar(data = avg_slopes, aes(group = NULL, min = CIs.2.5., max = CIs.97.5.), width = 0.1) +
-  facet_grid(~ "SNR linear trend") +
+  geom_errorbar(data = avg_slopes, aes(group = NULL, min = CIs.2.5., max = CIs.97.5.), width = 0.25) +
+  facet_grid(~ "SNR linear term") +
   scale_color_manual(values = okabe[c(6,8)]) +
   labs(x = "Condition", y = "Change in pupil area/+5 dB SNR [a.u.]") +
   theme(legend.position = "bottom") 
