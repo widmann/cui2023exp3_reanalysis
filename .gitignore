@@ -2,3 +2,7 @@
 .Rhistory
 .DS_Store
 bayes_models.Rdata
+allFits.Rdata
+bf_10k.Rdata
+bf_1k.Rdata
+models.Rdata
