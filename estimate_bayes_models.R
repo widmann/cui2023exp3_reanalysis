@@ -4,6 +4,8 @@ options(mc.cores = 4)
 
 load(file = "data.Rdata")
 
+contrasts(dat$cond) <- contr.sum(2)
+
 # cond x trial_ctr
 m_reduced <- pa ~ trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + cond * trial_ctr + cond * I(trial_ctr ^ 2) | subj)
 m_reduced_bayes <- brm(m_reduced, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
@@ -62,7 +64,7 @@ fm1_bayes <- add_criterion(fm1_bayes, criterion = c("waic"))
 fm2_bayes <- add_criterion(fm2_bayes, criterion = c("waic"))
 fm3_bayes <- add_criterion(fm3_bayes, criterion = c("waic"))
 
-save(file = "bayes_models.Rdata", fm1_bayes, fm2_bayes, fm3_bayes, fm3_fd_bayes, fm3_sgdi_bayes, m_reduced_bayes)
+save(file = "bayes_models_effect_coding.Rdata", fm1_bayes, fm2_bayes, fm3_bayes, fm3_fd_bayes, fm3_sgdi_bayes, m_reduced_bayes)
 # save(file = "bayes_models.Rdata", fm1_bayes, fm2_bayes, fm3_bayes, m_reduced_bayes)
 
 #### Compare models

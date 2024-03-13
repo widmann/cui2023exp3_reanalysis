@@ -46,7 +46,7 @@ ggsave("fig_sd.pdf", device = "pdf", width = 18 / 2.54, height = 12 / 2.54)
 #### @ Andreas: Keine Ahnung, wie man die y-Achse sinnvoll skaliert hier, mir fehlt
 #### auch dazu die Info, warum die AU bei uns so anders ist als bei denen
 
-load("models.Rdata")
+load("bayes_models.Rdata")
 
 #### Panel A: SNR x cond
 
@@ -57,7 +57,7 @@ load("models.Rdata")
 
 # So (mit trial_ctr = -10.5:10.5) schätzen wir den mittleren Effekt, richtig?
 
-emm_df <- emmip(fm2, cond ~ snr_ctr, at = list(trial_ctr = -10.5:10.5, snr_ctr = -2:2), plotit = F, CIs = T)
+emm_df <- emmip(fm2_bayes, cond ~ snr_ctr, at = list(trial_ctr = -10.5:10.5, snr_ctr = -2:2), plotit = F, CIs = T)
 emm_df$snr = emm_df$snr_ctr * 5 + 6
 ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
   geom_ribbon(aes(min = LCL, max = UCL, fill = cond), color = NA, alpha = 0.15) +
