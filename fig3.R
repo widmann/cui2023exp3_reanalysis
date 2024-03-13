@@ -41,10 +41,14 @@ load("bayes_models.Rdata")
 #   labs(x = "SNR [dB]", y = "Predicted pupil area [a.u.]") +
 #   theme(legend.position = "bottom")
 
+load("ind_fits_from_f2.Rdata")
+
 emm_df <- rbind(emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(-10.5,-5.25), snr_ctr = -2:2), plotit = F, CIs = T),
                 emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(-5.25,0), snr_ctr = -2:2), plotit = F, CIs = T),
                 emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(0,5.25), snr_ctr = -2:2), plotit = F, CIs = T),
                 emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(5.15,10.5), snr_ctr = -2:2), plotit = F, CIs = T))
+
+
 emm_df$range = rep(1:4, each = 10)
 emm_df$snr = emm_df$snr_ctr * 5 + 6
 emm_df$range = factor(emm_df$range, labels = c("1st quarter of block", "2nd quarter of block", "3rd quarter of block", "4th quarter of block"))
@@ -82,3 +86,38 @@ ggplot(emt_df, aes(x = trial, y = yvar, col = cond)) +
   labs(x = "Trial #", y = "Change in pupil area/+5 dB SNR [a.u.]") +
   theme(legend.position = "bottom")
 ggsave("fig3b.pdf", device = "pdf", width = 15.841 / 2.54, height = 7 / 2.54)
+
+
+
+
+
+
+
+
+# 3a 
+new_plot_dat1 <- aggregate(cbind(estimate__, lower__, upper__, se__) ~ snr_ctr + cond, ind_pred[ind_pred$trial_ctr <= -5.25,], mean)
+new_plot_dat2 <- aggregate(cbind(estimate__, lower__, upper__, se__) ~ snr_ctr + cond, ind_pred[ind_pred$trial_ctr >= -5.25 & ind_pred$trial_ctr < 0,], mean)
+new_plot_dat3 <- aggregate(cbind(estimate__, lower__, upper__, se__) ~ snr_ctr + cond, ind_pred[ind_pred$trial_ctr >= 0 & ind_pred$trial_ctr < 5.25,], mean)
+new_plot_dat4 <- aggregate(cbind(estimate__, lower__, upper__, se__) ~ snr_ctr + cond, ind_pred[ind_pred$trial_ctr >= +5.15,], mean)
+
+ggplot(new_plot_dat, aes(x = snr_ctr, y = estimate__, col = cond)) +
+  geom_ribbon(aes(min = estimate__ - se__, max = estimate__ + se__, fill = cond), color = NA, alpha = 0.15) +
+  geom_line() +
+  # facet_wrap(vars(cond)) +
+  ylim(1200,1800)
+ggplot(new_plot_dat2, aes(x = snr_ctr, y = estimate__, col = cond)) +
+  geom_ribbon(aes(min = estimate__ - se__, max = estimate__ + se__, fill = cond), color = NA, alpha = 0.15) +
+  geom_line() +
+  # facet_wrap(vars(cond)) +
+  ylim(1200,1800)
+ggplot(new_plot_dat3, aes(x = snr_ctr, y = estimate__, col = cond)) +
+  geom_ribbon(aes(min = estimate__ - se__, max = estimate__ + se__, fill = cond), color = NA, alpha = 0.15) +
+  geom_line() +
+  # facet_wrap(vars(cond)) +
+  ylim(1200,1800)
+ggplot(new_plot_dat4, aes(x = snr_ctr, y = estimate__, col = cond)) +
+  geom_ribbon(aes(min = estimate__ - se__, max = estimate__ + se__, fill = cond), color = NA, alpha = 0.15) +
+  geom_line() +
+  # facet_wrap(vars(cond)) +
+  ylim(1200,1800)
+

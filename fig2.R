@@ -13,7 +13,7 @@ okabe <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D
 
 # Import data
 load("data.Rdata")
-load("bayes_models_effect_coding.Rdata")
+load("bayes_models.Rdata")
 
 # (2) Dann würde ich gerne möglichst analog zu Fig. 9 im Cui-Paper zeigen, wie es aussähe,
 #  wenn man es modelliert und Trial als Kovariate ins Modell aufnimmt. 
@@ -124,28 +124,43 @@ ggsave("fig2b.pdf", device = "pdf", width = 4 / 2.54, height = 9 / 2.54)
 
 ######## In search of a version without individual differences in the SE
 
-# das hier müsste eine Replikation von deinem sein
-conditional_effects(fm2_bayes, effects = "snr_ctr:cond",
-                    re_formula = NA) 
+# Idee: berechne die individuellen Grafiken für alle Personen und Trials einzeln und mittle die, 
+# so dass man nur noch die within-person 
+# Unsicherheit hat.
+
+### Idee: splitte die Arbeit in Chunks, berechnet die Werte pro Chunk und dann fügen wir alles wieder zusammen
+# das dauert SEHR LANGE
+
+all_fits <- lapply(split(levels(dat$subj), ceiling(seq_along(levels(dat$subj))/3)), FUN = function(iBatch){
+  tmp <- conditional_effects(fm2_bayes, effects = "snr_ctr:cond",
+                                         conditions = distinct(dat[dat$subj %in% iBatch,], subj, trial_ctr),
+                                         re_formula = NULL,
+                                         robust = FALSE,
+                                         plot = F)
+  return(tmp)
+}
+)
 
 
-fit_cond_lines <- conditional_effects(fm2_bayes, effects = "snr_ctr:cond", 
-                    conditions = distinct(dat, subj), 
-                    re_formula = NULL)
 
-ind_pred <- fit_cond_lines$`snr_ctr:cond`
+# save(list = ls(), file = "ind_fits.Rdata")
+
+all_fits2 <- lapply(all_fits, function(iFit){
+  iFit$`snr_ctr:cond`
+})
+
+ind_pred <- bind_rows(all_fits2, .id = "column_label")
+save(list = "ind_pred", file = "ind_fits_from_f2.Rdata")
 
 new_plot_dat <- aggregate(cbind(estimate__, lower__, upper__, se__) ~ snr_ctr + cond, ind_pred, mean)
 
 ggplot(new_plot_dat, aes(x = snr_ctr, y = estimate__, col = cond)) +
-  geom_ribbon(aes(min = lower__, max = upper__, fill = cond), color = NA, alpha = 0.15) +
+  geom_ribbon(aes(min = estimate__ - se__, max = estimate__ + se__, fill = cond), color = NA, alpha = 0.15) +
   geom_line() +
   facet_wrap(vars(cond)) +
   ylim(1200,1600)
 
 
-#### andere Idee: rekonstruier die Daten nur aus dem cond-effect, snr-effect
-#### und den Residuen
 
 
 
