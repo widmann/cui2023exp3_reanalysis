@@ -1,52 +1,55 @@
+# This script reproduces Fig. 5 of the manuscript "Pupillometry is sensitive to
+# speech masking during story listening: The critical role of modeling temporal
+# trends" by Andreas Widmann, Björn Herrmann, and Florian Scharf.
+#
+# Authors: Florian Scharf, florian.scharf@uni-kassel.de and Andreas Widmann, widmann@uni-leipzig.de
+# Copyright (c) 2024 Florian Scharf, University of Kassel and Andreas Widmann, Leipzig University
+
+library(ggplot2)
 library(margins)
-dev.off()
-pdf(file = "Figure5.pdf", width = 8, height = 4.5)
-set.seed(222)
-par(mfrow = c(1,2))
+
+options(scipen = 4, width = 100)
+rm(list = ls())
+theme_set(theme_gray(base_size = 10))
+okabe <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
 time <- 1:100
-condition1 <- exp(-time/10*0.8)*5+2 
-condition2 <- exp(-time/10*0.8)*5+1
-diff <- condition1 - condition2
+condition1 <- exp(-time / 10 * 0.8) * 5 + 2 
+condition2 <- exp(-time / 10 * 0.8) * 5 + 1
 
 set.seed(22)
-x1 <- sample(rep(1:2,50), size = 100)
+x1 <- sample(rep(1:2, 50), size = 100)
 y1 <- vector(length = 100)
 
 for (i in 1:100){
   y1[i] <- ifelse(x1[i]==1, condition1[i], condition2[i]) + rnorm(n = 100, sd = 1)
 }
 
-means1 <- aggregate(y1 ~ x1, data = NULL, mean)
+simdata <- data.frame(Trial = time, Condition = x1, Outcome = y1)
+simdata$Condition <- factor(simdata$Condition, labels = c("Condition A", "Condition B"))
 
+# Panel A
+ggplot(data = simdata, aes(x = Trial, y = Outcome, color = Condition)) +
+  geom_line(data = data.frame(Trial = 1:100, Outcome = condition1, Condition = "Condition A"), alpha = 0.5) +
+  geom_line(data = data.frame(Trial = 1:100, Outcome = condition2, Condition = "Condition B"), alpha = 0.5) +
+  geom_point(shape = 16, size = 1, alpha = 0.8) +
+  scale_color_manual(values = okabe[c(4, 3)]) +
+  facet_grid(~ "Before detrending") +
+  theme(legend.position = "bottom") +
+  labs(color = element_blank()) +
+  ylim(0, 6)
+ggsave("fig5a-1.pdf", device = "pdf", width = 6.09 / 2.54, height = 7.2 / 2.54)
 
-
-
-plot(time, condition1, 
-     type = "l", 
-     col = alpha("red", 0.5), 
-     lwd = 2, 
-     xlim = c(0,110),
-     ylim = c(0,6),
-     ylab = "Outcome",
-     xlab = "Trial",
-     main = "After detrending")
-lines(time, condition2, col = alpha("blue", 0.5), lwd = 2)
-
-legend("topright", col = c("red", "blue"), lty = 1, lwd = 2, legend = c("Condition A", "Condition B"), bty = "n")
-
-
-points(time,y1, col = ifelse(x1 == 1, "red", "blue"))
-myDat <- data.frame(y1, x1, time = scale(time, scale = F))
-myDat$x1 <- factor(myDat$x1, labels = c("A","B"))
-fit_naive1 <- lm(y1 ~ x1, myDat)
-fit_trend1 <- lm(y1 ~ 1 +x1 + time + I(time^2) + I(time^3) + I(time^4), myDat)
-myDat$x1 <- relevel(myDat$x1, ref = "B")
-fit_trend2 <- lm(y1 ~ x1 + time + I(time^2) + I(time^3) + I(time^4), myDat)
-fit_naive2 <- lm(y1 ~ x1, myDat)
-
+simdata$Trial_ctr <- as.numeric(scale(simdata$Trial, scale = F))
+simdata$Condition <- relevel(simdata$Condition, ref = "Condition A")
+fit_naive1 <- lm(Outcome ~ Condition, simdata)
+fit_trend1 <- lm(Outcome ~ 1 + Condition + Trial_ctr + I(Trial_ctr^2) + I(Trial_ctr^3) + I(Trial_ctr^4), simdata)
+simdata$Condition <- relevel(simdata$Condition, ref = "Condition B")
+fit_naive2 <- lm(Outcome ~ Condition, simdata)
+fit_trend2 <- lm(Outcome ~ 1 + Condition + Trial_ctr + I(Trial_ctr^2) + I(Trial_ctr^3) + I(Trial_ctr^4), simdata)
 
 summary(fit_naive1)
-summary(fit_trend1)
+summary(fit_trend2)
 
 m_trend1 <- margins(fit_trend1)
 m_trend2 <- margins(fit_trend2)
@@ -57,43 +60,45 @@ summary(m_trend2)
 b_naive1 <- coef(fit_naive1)
 b_naive2 <- coef(fit_naive2)
 
-points(x = c(105,105),y = c(b_naive1[1], b_naive2[1]), pch = 15, col = c("red", "blue"), cex = 1.5)
-arrows(x0=105, y0= confint(fit_naive1)[1,1], x1=105, y1=confint(fit_naive1)[1,2], code=3, angle=90, length=0.2, col="red", lwd=2)
-arrows(x0=105, y0= confint(fit_naive2)[1,1], x1=105, y1=confint(fit_naive2)[1,2], code=3, angle=90, length=0.2, col="blue", lwd=2)
+meandata <- data.frame(Condition = c("A", "B"), mean = c(b_naive1[1], b_naive2[1]), lcl = c(confint(fit_naive1)[1,1], confint(fit_naive2)[1,1]), ucl = c(confint(fit_naive1)[1,2], confint(fit_naive2)[1,2]))
+
+ggplot(data = meandata, aes(x = Condition, y = mean, color = Condition)) +
+  geom_point(shape = 15, size = 2) +
+  geom_errorbar(aes(ymin = lcl, ymax = ucl), width = 1) +
+  scale_color_manual(values = okabe[c(4, 3)]) +
+  facet_grid(~ "Marginal means") +
+  theme(legend.position = "bottom") +
+  labs(color = element_blank()) +
+  ylim(0, 6)
+ggsave("fig5a-2.pdf", device = "pdf", width = 2.35 / 2.54, height = 7.2 / 2.54)
 
 ###### Plot again after correction for the trend
 
 # create new data set without trend
-myDat2 <- myDat
-myDat2$x1 <- relevel(myDat2$x1, ref = "A")
-fit_trend <- lm(y1 ~ 1 + time + I(time^2) + I(time^3) + I(time^4), myDat)
-myDat2$y1 <- mean(myDat2$y1) + resid(fit_trend)
+simdata$Condition <- relevel(simdata$Condition, ref = "Condition A")
+fit_trend <- lm(Outcome ~ 1 + Trial_ctr + I(Trial_ctr^2) + I(Trial_ctr^3) + I(Trial_ctr^4), simdata)
+simdata$Outcome_detrended <- mean(simdata$Outcome) + resid(fit_trend)
 
-plot(time, condition1, 
-     type = "l", 
-     col = alpha("red", 0), 
-     lwd = 2, 
-     xlim = c(0,110),
-     ylim = c(0,6),
-     ylab = "Outcome",
-     xlab = "Trial",
-     main = "Before detrending")
-lines(time, condition2, col = alpha("blue", 0), lwd = 2)
+# Panel B
+ggplot(data = simdata, aes(x = Trial, y = Outcome_detrended, color = Condition)) +
+  geom_point(shape = 16, size = 1.2) +
+  scale_color_manual(values = okabe[c(4, 3)]) +
+  facet_grid(~ "After detrending") +
+  theme(legend.position = "bottom") +
+  labs(color = element_blank()) +
+  ylim(0, 6)
+ggsave("fig5b-1.pdf", device = "pdf", width = 6.09 / 2.54, height = 7.2 / 2.54)
 
-legend("topright", col = c("red", "blue"), lty = 1, lwd = 2, legend = c("Condition A", "Condition B"), bty = "n")
-
-
-points(time,myDat2$y1, col = ifelse(myDat2$x1 == "A", "red", "blue"))
-
-fit_naive1 <- lm(y1 ~ x1, myDat2)
-fit_trend1 <- lm(y1 ~ 1 +x1 + time + I(time^2) + I(time^3) + I(time^4), myDat2)
-myDat2$x1 <- relevel(myDat2$x1, ref = "B")
-fit_trend2 <- lm(y1 ~ x1 + time + I(time^2) + I(time^3) + I(time^4), myDat2)
-fit_naive2 <- lm(y1 ~ x1, myDat2)
-
+simdata$Trial_ctr <- as.numeric(scale(simdata$Trial, scale = F))
+simdata$Condition <- relevel(simdata$Condition, ref = "Condition A")
+fit_naive1 <- lm(Outcome_detrended ~ Condition, simdata)
+fit_trend1 <- lm(Outcome_detrended ~ 1 + Condition + Trial_ctr + I(Trial_ctr^2) + I(Trial_ctr^3) + I(Trial_ctr^4), simdata)
+simdata$Condition <- relevel(simdata$Condition, ref = "Condition B")
+fit_naive2 <- lm(Outcome_detrended ~ Condition, simdata)
+fit_trend2 <- lm(Outcome_detrended ~ 1 + Condition + Trial_ctr + I(Trial_ctr^2) + I(Trial_ctr^3) + I(Trial_ctr^4), simdata)
 
 summary(fit_naive1)
-summary(fit_trend1)
+summary(fit_trend2)
 
 m_trend1 <- margins(fit_trend1)
 m_trend2 <- margins(fit_trend2)
@@ -104,11 +109,14 @@ summary(m_trend2)
 b_naive1 <- coef(fit_naive1)
 b_naive2 <- coef(fit_naive2)
 
-points(x = c(105,105),y = c(b_naive1[1], b_naive2[1]), pch = 15, col = c("red", "blue"), cex = 1.5)
-arrows(x0=105, y0= confint(fit_naive1)[1,1], x1=105, y1=confint(fit_naive1)[1,2], code=3, angle=90, length=0.2, col="red", lwd=2)
-arrows(x0=105, y0= confint(fit_naive2)[1,1], x1=105, y1=confint(fit_naive2)[1,2], code=3, angle=90, length=0.2, col="blue", lwd=2)
+meandata <- data.frame(Condition = c("A", "B"), mean = c(b_naive1[1], b_naive2[1]), lcl = c(confint(fit_naive1)[1,1], confint(fit_naive2)[1,1]), ucl = c(confint(fit_naive1)[1,2], confint(fit_naive2)[1,2]))
 
-
-dev.off()
-
-
+ggplot(data = meandata, aes(x = Condition, y = mean, color = Condition)) +
+  geom_point(shape = 15, size = 2) +
+  geom_errorbar(aes(ymin = lcl, ymax = ucl), width = 1) +
+  scale_color_manual(values = okabe[c(4, 3)]) +
+  facet_grid(~ "Marginal means") +
+  theme(legend.position = "bottom") +
+  labs(color = element_blank()) +
+  ylim(0, 6)
+ggsave("fig5b-2.pdf", device = "pdf", width = 2.35 / 2.54, height = 7.2 / 2.54)
