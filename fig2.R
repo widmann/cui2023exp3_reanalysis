@@ -40,15 +40,15 @@ ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
 
 #### Panel A: SNR x cond, within SE version ----
 
-######## In search of a version without individual differences in the SE
+# Idea: compute the predicted values for each SNR value for each individual 
+# participant and each trial (incl. posterior SD as "standard error")
+# by averarging these values across all participants and trials
+# a marginal predicted value (i.e., mean) and a marginal standard error estimate
+# are derived
 
-# Idee: berechne die individuellen Grafiken für alle Personen und Trials einzeln und mittle die, 
-# so dass man nur noch die within-person 
-# Unsicherheit hat.
-
-### Idee: splitte die Arbeit in Chunks, berechnet die Werte pro Chunk und dann fügen wir alles wieder zusammen
-# das dauert SEHR LANGE
-
+# to conduct this analysis, the work has to be done in several chunks
+# otherwise the RAM is flooded, running this takes a long time
+# 
 # all_fits <- lapply(split(levels(dat$subj), ceiling(seq_along(levels(dat$subj))/3)), FUN = function(iBatch){
 #   tmp <- conditional_effects(fm2_bayes, effects = "snr_ctr:cond",
 #                              conditions = distinct(dat[dat$subj %in% iBatch,], subj, trial_ctr),
@@ -68,6 +68,7 @@ ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
 # ind_pred <- bind_rows(all_fits2, .id = "column_label")
 # save(list = "ind_pred", file = "ind_fits_from_f2.Rdata")
 
+# load results from the previous step to save time
 load(file = "ind_fits_from_f2.Rdata")
 new_plot_dat <- aggregate(cbind(estimate__, lower__, upper__, se__) ~ snr_ctr + cond, ind_pred, mean)
 new_plot_dat$snr = new_plot_dat$snr_ctr * 5 + 6
@@ -86,9 +87,7 @@ ggplot(new_plot_dat, aes(x = snr, y = estimate__, col = cond)) +
 
 #### Panel B: Slopes ----
 
-# in deren Grafik sind ja dann noch die individuellen Effekte, damit befassen wir uns nun...
-
-### individuelle Effekte rausholen
+### extract individual random effects
 ind_slopes <- data.frame(subj = unique(dat$subj),
   slopes_intact = coef(fm2_bayes)$subj[,"Estimate", "snr_ctr"],
   slopes_scrambled = rowSums(coef(fm2_bayes)$subj[,"Estimate", c("snr_ctr","snr_ctr:condScrambled")]))
@@ -98,20 +97,20 @@ ind_slopes_long <- pivot_longer(data = ind_slopes, cols = !c(subj),
 
 ind_slopes_long$cond <- factor(ind_slopes_long$cond, labels = levels(dat$cond))
 
-### mittlere Effekte umrechnen 
-# extrahiere posteriori Werte der Koeffizienten
+# we extract the posteriors to compute CIs for the snr_effect per condition
+# the logic is the same as in fig1
 posterior_samples <- as_draws(fm2_bayes, variable = c("b_snr_ctr", "b_snr_ctr:condScrambled"))
 posterior_samples <- merge_chains(posterior_samples, variable = c("b_snr_ctr", "b_snr_ctr:condScrambled"))
 posterior_samples <- as_draws_df(posterior_samples)
 
-# Man kann aus der Posterior die KIs bestimmen, erstmal als Demo/Check
+
+# again check by reproducing the CIs from the summary output
 fixef(fm2_bayes)["snr_ctr",]
 quantile(posterior_samples$b_snr_ctr, probs = c(0.025, 0.975))
-# für den Effekt in der anderen Bedingung, muss man die Koeffizienten addieren
+# now compute posterior of SNR effect in scrambled condition
 posterior_samples$b_snr_ctr_scrambled <- posterior_samples$b_snr_ctr + posterior_samples$`b_snr_ctr:condScrambled`
 
-# berechne die mittleren slopes der beiden Bedingungen und generiere die KIs dafür
-# aus den posteriori Quantilen
+# get quantiles from the posterior
 CIs <- apply(posterior_samples[,c("b_snr_ctr","b_snr_ctr_scrambled")], 2, quantile, probs = c(0.025, 0.975))
 CIs
 
