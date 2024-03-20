@@ -27,7 +27,7 @@ The scripts contain the following parts of the analyses:
 * estimate_models: estimate initial Mixed Models in lme4 (all outputs available in respective HTML file)
 * estimate_bayes_models: estimate the more complex Mixed Models in brms (the large results file available on request)
 * report_bayes_models: extracts the model outputs from the bayes models (all outputs available in respective HTML file)
-* fig: scripts to recreate all results and illustrative figures
+* fig: scripts to recreate all results figures and illustrative figures
 
 ## Comments
 * I have tried to fully replicate the analysis **except** for PFE correction. PFE correction by regression appeared to introduce rather than reduce noise. Correction maps were implausible for some participants. Possibly the sampled display area was too small?
