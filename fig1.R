@@ -1,5 +1,11 @@
+# This script reproduces Fig. 1 of the manuscript "Pupillometry is sensitive to
+# speech masking during story listening: The critical role of modeling temporal
+# trends" by Andreas Widmann, Björn Herrmann, and Florian Scharf.
+#
+# Authors: Florian Scharf, florian.scharf@uni-kassel.de and Andreas Widmann, widmann@uni-leipzig.de
+# Copyright (c) 2024 Florian Scharf, University of Kassel and Andreas Widmann, Leipzig University
+
 library(ggplot2)
-library(emmeans)
 library(dplyr)
 library(tidyr)
 library(brms)
@@ -30,7 +36,7 @@ ggplot(dat_cond_trial, aes(x = trial, y = pa_mean, col = cond)) +
   labs(color = "Condition", fill = "Condition") +
   labs(x = "Trial #", y = "Pupil area [a.u.]") +
   theme(legend.position = "bottom")
-ggsave("fig1a.pdf", device = "pdf", width = 12 / 2.54, height = 9 / 2.54)
+# ggsave("fig1a.pdf", device = "pdf", width = 12 / 2.54, height = 9 / 2.54)
 
 #### Panel B: Linear trend
 
@@ -70,14 +76,13 @@ avg_slopes <- data.frame(cond = levels(dat$cond),
                          slopes = colMeans(posterior_samples[,c("b_trial_ctr","b_trial_ctr_scrambled")]),
                          CIs = t(CIs))
 
-
 ggplot(ind_slopes_long, aes(x = cond, y = slopes, group = subj, fill = cond, col = cond)) +
   geom_point(shape = 16, alpha = 0.4, size = 2) +
   geom_line(alpha = 0.4, col = "gray") +
   geom_point(shape = 16, data = avg_slopes, aes(group = NULL), size = 5) +
   geom_errorbar(data = avg_slopes, aes(group = NULL, min = CIs.2.5., max = CIs.97.5.), width = 0.25) +
-  facet_grid(~ "Trial linear term") +
+  facet_grid(~ "Trial linear trend") +
   scale_color_manual(values = okabe[c(6,8)]) +
   labs(x = "Condition", y = "Change in pupil area/trial [a.u.]") +
   theme(legend.position = "bottom") 
-ggsave("fig1b.pdf", device = "pdf", width = 4 / 2.54, height = 9 / 2.54)
+# ggsave("fig1b.pdf", device = "pdf", width = 4 / 2.54, height = 9 / 2.54)

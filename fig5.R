@@ -13,6 +13,7 @@ rm(list = ls())
 theme_set(theme_gray(base_size = 10))
 okabe <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+# Prepare simulated data
 time <- 1:100
 condition1 <- exp(-time / 10 * 0.8) * 5 + 2 
 condition2 <- exp(-time / 10 * 0.8) * 5 + 1
@@ -28,7 +29,7 @@ for (i in 1:100){
 simdata <- data.frame(Trial = time, Condition = x1, Outcome = y1)
 simdata$Condition <- factor(simdata$Condition, labels = c("Condition A", "Condition B"))
 
-# Panel A
+#### Panel A ----
 ggplot(data = simdata, aes(x = Trial, y = Outcome, color = Condition)) +
   geom_line(data = data.frame(Trial = 1:100, Outcome = condition1, Condition = "Condition A"), alpha = 0.5) +
   geom_line(data = data.frame(Trial = 1:100, Outcome = condition2, Condition = "Condition B"), alpha = 0.5) +
@@ -38,7 +39,7 @@ ggplot(data = simdata, aes(x = Trial, y = Outcome, color = Condition)) +
   theme(legend.position = "bottom") +
   labs(color = element_blank()) +
   ylim(0, 6)
-ggsave("fig5a-1.pdf", device = "pdf", width = 6.09 / 2.54, height = 7.2 / 2.54)
+# ggsave("fig5a-1.pdf", device = "pdf", width = 6.09 / 2.54, height = 7.2 / 2.54)
 
 simdata$Trial_ctr <- as.numeric(scale(simdata$Trial, scale = F))
 simdata$Condition <- relevel(simdata$Condition, ref = "Condition A")
@@ -70,16 +71,17 @@ ggplot(data = meandata, aes(x = Condition, y = mean, color = Condition)) +
   theme(legend.position = "bottom") +
   labs(color = element_blank()) +
   ylim(0, 6)
-ggsave("fig5a-2.pdf", device = "pdf", width = 2.35 / 2.54, height = 7.2 / 2.54)
+# ggsave("fig5a-2.pdf", device = "pdf", width = 2.35 / 2.54, height = 7.2 / 2.54)
 
-###### Plot again after correction for the trend
+# Plot again after correction for the trend
 
-# create new data set without trend
+# create new outcome variable without trend
 simdata$Condition <- relevel(simdata$Condition, ref = "Condition A")
 fit_trend <- lm(Outcome ~ 1 + Trial_ctr + I(Trial_ctr^2) + I(Trial_ctr^3) + I(Trial_ctr^4), simdata)
 simdata$Outcome_detrended <- mean(simdata$Outcome) + resid(fit_trend)
 
-# Panel B
+#### Panel B ----
+
 ggplot(data = simdata, aes(x = Trial, y = Outcome_detrended, color = Condition)) +
   geom_point(shape = 16, size = 1.2) +
   scale_color_manual(values = okabe[c(4, 3)]) +
@@ -87,7 +89,7 @@ ggplot(data = simdata, aes(x = Trial, y = Outcome_detrended, color = Condition))
   theme(legend.position = "bottom") +
   labs(color = element_blank()) +
   ylim(0, 6)
-ggsave("fig5b-1.pdf", device = "pdf", width = 6.09 / 2.54, height = 7.2 / 2.54)
+# ggsave("fig5b-1.pdf", device = "pdf", width = 6.09 / 2.54, height = 7.2 / 2.54)
 
 simdata$Trial_ctr <- as.numeric(scale(simdata$Trial, scale = F))
 simdata$Condition <- relevel(simdata$Condition, ref = "Condition A")
@@ -119,4 +121,4 @@ ggplot(data = meandata, aes(x = Condition, y = mean, color = Condition)) +
   theme(legend.position = "bottom") +
   labs(color = element_blank()) +
   ylim(0, 6)
-ggsave("fig5b-2.pdf", device = "pdf", width = 2.35 / 2.54, height = 7.2 / 2.54)
+# ggsave("fig5b-2.pdf", device = "pdf", width = 2.35 / 2.54, height = 7.2 / 2.54)

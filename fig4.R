@@ -13,6 +13,7 @@ theme_set(theme_gray(base_size = 10))
 okabe <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 #### Simulated data first scenario (no condition by trend interaction) ----
+
 simdata <- data.frame(Trial = rep(1:100, 2))
 simdata$Condition <- factor(c(rep("Condition A", 100), rep("Condition B", 100)))
 simdata$Outcome <- c(exp(-simdata[simdata$Condition == "Condition A",]$Trial / 10 * 0.8) * 5 + 3,
@@ -26,7 +27,7 @@ ggplot(data = simdata, aes(x = Trial, y = Outcome, color = Condition)) +
   theme(legend.position = "bottom") +
   labs(color = element_blank()) +
   ylim(0, 10)
-ggsave("fig4a.pdf", device = "pdf", width = 8 / 2.54, height = 7.2 / 2.54)
+# ggsave("fig4a.pdf", device = "pdf", width = 8 / 2.54, height = 7.2 / 2.54)
 
 # Panel B
 simeffect <- data.frame(Trial = rep(1:100, 2))
@@ -42,7 +43,7 @@ ggplot(data = simeffect, aes(x = Trial, y = `Condition effect`, color = Effect, 
   theme(legend.position = "bottom") +
   labs(color = element_blank(), linetype = element_blank()) +
   ylim(0, 10)
-ggsave("fig4b.pdf", device = "pdf", width = 8 / 2.54, height = 7.2 / 2.54)
+# ggsave("fig4b.pdf", device = "pdf", width = 8 / 2.54, height = 7.2 / 2.54)
 
 #### Simulated data second scenario (no condition by trend interaction) ----
 simdata <- data.frame(Trial = rep(1:100, 2))
@@ -58,7 +59,7 @@ ggplot(data = simdata, aes(x = Trial, y = Outcome, color = Condition)) +
   theme(legend.position = "bottom") +
   labs(color = element_blank()) +
   ylim(0, 10)
-ggsave("fig4c.pdf", device = "pdf", width = 8 / 2.54, height = 7.2 / 2.54)
+# ggsave("fig4c.pdf", device = "pdf", width = 8 / 2.54, height = 7.2 / 2.54)
 
 # Panel D
 simeffect <- data.frame(Trial = rep(1:100, 2))
@@ -74,4 +75,4 @@ ggplot(data = simeffect, aes(x = Trial, y = `Condition effect`, color = Effect, 
   theme(legend.position = "bottom") +
   labs(color = element_blank(), linetype = element_blank()) +
   ylim(0, 10)
-ggsave("fig4d.pdf", device = "pdf", width = 8 / 2.54, height = 7.2 / 2.54)
+# ggsave("fig4d.pdf", device = "pdf", width = 8 / 2.54, height = 7.2 / 2.54)

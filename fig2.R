@@ -1,3 +1,10 @@
+# This script reproduces Fig. 2 of the manuscript "Pupillometry is sensitive to
+# speech masking during story listening: The critical role of modeling temporal
+# trends" by Andreas Widmann, Björn Herrmann, and Florian Scharf.
+#
+# Authors: Florian Scharf, florian.scharf@uni-kassel.de and Andreas Widmann, widmann@uni-leipzig.de
+# Copyright (c) 2024 Florian Scharf, University of Kassel and Andreas Widmann, Leipzig University
+
 library(ggplot2)
 library(emmeans)
 library(dplyr)
@@ -15,26 +22,11 @@ okabe <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D
 load("data.Rdata")
 load("bayes_models.Rdata")
 
-# (2) Dann würde ich gerne möglichst analog zu Fig. 9 im Cui-Paper zeigen, wie es aussähe,
-#  wenn man es modelliert und Trial als Kovariate ins Modell aufnimmt. 
-#  Botschaft: Pupille ist sensitiv für SNR/effort.
-
-#### @ Andreas: Keine Ahnung, wie man die y-Achse sinnvoll skaliert hier, mir fehlt
-#### auch dazu die Info, warum die AU bei uns so anders ist als bei denen
-
-#### Panel A: SNR x cond ----
-
-# Wenn man ohne diese Interaktion schätzt bekommt man den sog. marginal effect.
-# Das ist sozusagen der mittlere Effekt über alle Trials (vs. der Effekt beim
-# mittleren Trial). Das ist ein Unterschied (vermutlich kein starker, aber es
-# ist einer), deswegen fragte ich nach. :)
-
-# So (mit trial_ctr = -10.5:10.5) schätzen wir den mittleren Effekt, richtig?
+#### Panel A: SNR x cond, CI version ----
 
 emm_df <- emmip(fm2_bayes, cond ~ snr_ctr, at = list(trial_ctr = -10.5:10.5, snr_ctr = -2:2), plotit = F, CIs = T, PIs = F)
-emm_df$snr = emm_df$snr_ctr * 5 + 6
+emm_df$snr <- emm_df$snr_ctr * 5 + 6
 ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
-  # geom_ribbon(aes(min = yvar - SE, max = yvar + SE, fill = cond), color = NA, alpha = 0.15) +
   geom_ribbon(aes(min = LCL, max = UCL, fill = cond), color = NA, alpha = 0.15) +
   geom_line() +
   geom_point(shape = 16, size = 5) +
@@ -44,37 +36,55 @@ ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
   labs(color = "Condition", fill = "Condition") +
   labs(x = "SNR [dB]", y = "Predicted pupil area [a.u.]") +
   theme(legend.position = "bottom")
-ggsave("fig2a.pdf", device = "pdf", width = 12 / 2.54, height = 9 / 2.54)
+# ggsave("fig2a.pdf", device = "pdf", width = 12 / 2.54, height = 9 / 2.54)
 
-# dat_pred <- dat
-# dat_pred$trial_ctr <- 0
-# dat_pred$pa_pred = predict(fm2_bayes, dat_pred)
-# 
-# # Participant center predicted pupil area
-# dat_pred$pa_pred.y <- with(dat_pred, ave(pa_pred[, "Estimate"], subj, FUN = mean))
-# dat_pred$pa_pred_pCtr <- dat_pred$pa_pred[, "Estimate"] - dat_pred$pa_pred.y
-# 
-# dat_snr_cond <- dat_pred %>%
-#   group_by(subj, snr_ctr, cond) %>%
-#   summarise(pa_pred = mean(pa_pred_pCtr)) %>%
-#   group_by(snr_ctr, cond) %>%
-#   summarise(pa_pred_mean = mean(pa_pred), pa_pred_sd = sd(pa_pred))
-# 
-# n <- nlevels(dat$subj)
-# dat_snr_cond$snr = emm_df$snr_ctr * 5 + 6
-# ggplot(dat_snr_cond, aes(x = snr, y = pa_pred_mean, col = cond)) +
-#   geom_ribbon(aes(min = pa_pred_mean - pa_pred_sd / sqrt(n) * 1.96, max = pa_pred_mean + pa_pred_sd / sqrt(n) * 1.96, fill = cond), color = NA, alpha = 0.15) +
-#   geom_line() +
-#   geom_point(shape = 16, size = 5) +
-#   scale_fill_manual(values = okabe[c(6,8)]) +
-#   scale_color_manual(values = okabe[c(6,8)]) +
-#   facet_wrap(~ cond) +
-#   labs(color = "Condition", fill = "Condition") +
-#   labs(x = "SNR [dB]", y = "Predicted pupil area [a.u.]") +
-#   theme(legend.position = "bottom")
-# ggsave("fig2a_a.pdf", device = "pdf", width = 12 / 2.54, height = 9 / 2.54)
+#### Panel A: SNR x cond, within SE version ----
 
-#### Panel B: Slopes
+######## In search of a version without individual differences in the SE
+
+# Idee: berechne die individuellen Grafiken für alle Personen und Trials einzeln und mittle die, 
+# so dass man nur noch die within-person 
+# Unsicherheit hat.
+
+### Idee: splitte die Arbeit in Chunks, berechnet die Werte pro Chunk und dann fügen wir alles wieder zusammen
+# das dauert SEHR LANGE
+
+# all_fits <- lapply(split(levels(dat$subj), ceiling(seq_along(levels(dat$subj))/3)), FUN = function(iBatch){
+#   tmp <- conditional_effects(fm2_bayes, effects = "snr_ctr:cond",
+#                              conditions = distinct(dat[dat$subj %in% iBatch,], subj, trial_ctr),
+#                              re_formula = NULL,
+#                              robust = FALSE,
+#                              plot = F)
+#   return(tmp)
+# }
+# )
+# 
+# # save(list = ls(), file = "ind_fits.Rdata")
+# 
+# all_fits2 <- lapply(all_fits, function(iFit){
+#   iFit$`snr_ctr:cond`
+# })
+# 
+# ind_pred <- bind_rows(all_fits2, .id = "column_label")
+# save(list = "ind_pred", file = "ind_fits_from_f2.Rdata")
+
+load(file = "ind_fits_from_f2.Rdata")
+new_plot_dat <- aggregate(cbind(estimate__, lower__, upper__, se__) ~ snr_ctr + cond, ind_pred, mean)
+new_plot_dat$snr = new_plot_dat$snr_ctr * 5 + 6
+
+ggplot(new_plot_dat, aes(x = snr, y = estimate__, col = cond)) +
+  geom_ribbon(aes(min = estimate__ - se__, max = estimate__ + se__, fill = cond), color = NA, alpha = 0.15) +
+  geom_line() +
+  geom_point(data = new_plot_dat[round((new_plot_dat$snr_ctr + 2) * 99 / 100 * 25 + 1) %in% c(1, 26, 50, 75, 100),], aes(x = snr, y = estimate__, col = cond), shape = 16, size = 5) +
+  scale_fill_manual(values = okabe[c(6,8)]) +
+  scale_color_manual(values = okabe[c(6,8)]) +
+  facet_wrap(~ cond) +
+  labs(color = "Condition", fill = "Condition") +
+  labs(x = "SNR [dB]", y = "Predicted pupil area [a.u.]") +
+  theme(legend.position = "bottom")
+# ggsave("fig2a.pdf", device = "pdf", width = 12 / 2.54, height = 9 / 2.54)
+
+#### Panel B: Slopes ----
 
 # in deren Grafik sind ja dann noch die individuellen Effekte, damit befassen wir uns nun...
 
@@ -118,48 +128,7 @@ ggplot(ind_slopes_long, aes(x = cond, y = slopes, group = subj, fill = cond, col
   scale_color_manual(values = okabe[c(6,8)]) +
   labs(x = "Condition", y = "Change in pupil area/+5 dB SNR [a.u.]") +
   theme(legend.position = "bottom") 
-ggsave("fig2b.pdf", device = "pdf", width = 4 / 2.54, height = 9 / 2.54)
-
-
-
-######## In search of a version without individual differences in the SE
-
-# Idee: berechne die individuellen Grafiken für alle Personen und Trials einzeln und mittle die, 
-# so dass man nur noch die within-person 
-# Unsicherheit hat.
-
-### Idee: splitte die Arbeit in Chunks, berechnet die Werte pro Chunk und dann fügen wir alles wieder zusammen
-# das dauert SEHR LANGE
-
-all_fits <- lapply(split(levels(dat$subj), ceiling(seq_along(levels(dat$subj))/3)), FUN = function(iBatch){
-  tmp <- conditional_effects(fm2_bayes, effects = "snr_ctr:cond",
-                                         conditions = distinct(dat[dat$subj %in% iBatch,], subj, trial_ctr),
-                                         re_formula = NULL,
-                                         robust = FALSE,
-                                         plot = F)
-  return(tmp)
-}
-)
-
-
-
-# save(list = ls(), file = "ind_fits.Rdata")
-
-all_fits2 <- lapply(all_fits, function(iFit){
-  iFit$`snr_ctr:cond`
-})
-
-ind_pred <- bind_rows(all_fits2, .id = "column_label")
-save(list = "ind_pred", file = "ind_fits_from_f2.Rdata")
-
-new_plot_dat <- aggregate(cbind(estimate__, lower__, upper__, se__) ~ snr_ctr + cond, ind_pred, mean)
-
-ggplot(new_plot_dat, aes(x = snr_ctr, y = estimate__, col = cond)) +
-  geom_ribbon(aes(min = estimate__ - se__, max = estimate__ + se__, fill = cond), color = NA, alpha = 0.15) +
-  geom_line() +
-  facet_wrap(vars(cond)) +
-  ylim(1200,1600)
-
+# ggsave("fig2b.pdf", device = "pdf", width = 4 / 2.54, height = 9 / 2.54)
 
 
 
