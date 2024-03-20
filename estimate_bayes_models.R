@@ -48,7 +48,7 @@ pp_check(fm3_bayes, ndraws = 100)
 
 #### Fixation duration: SNR x cond x trial_ctr ----
 m3_fd <- fd ~ snr_ctr * cond * trial_ctr + I(trial_ctr ^ 2) * cond + (1 + snr_ctr * cond + trial_ctr + I(trial_ctr ^ 2) | subj)
-fm3_fd_bayes <- brm(m3_fd, data = dat, cores = 4, iter = 10000, save_pars = save_pars(all = TRUE))
+fm3_fd_bayes <- brm(m3_fd, data = dat, cores = 4, iter = 25000, save_pars = save_pars(all = TRUE))
 
 summary(fm3_fd_bayes)
 plot(fm3_fd_bayes)
