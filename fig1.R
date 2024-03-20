@@ -45,7 +45,7 @@ load("bayes_models.Rdata")
 ranef(m_reduced_bayes)$subj[,"Estimate",]
 fixef(m_reduced_bayes)
 
-### individuelle Effekte rausholen
+### compute individual condition effects from the LMM random effects 
 ind_slopes <- data.frame(subj = unique(dat$subj),
                          slopes_intact = coef(m_reduced_bayes)$subj[,"Estimate", "trial_ctr"],
                          slopes_scrambled = rowSums(coef(m_reduced_bayes)$subj[,"Estimate", c("trial_ctr","condScrambled:trial_ctr")]))
@@ -55,20 +55,23 @@ ind_slopes_long <- pivot_longer(data = ind_slopes, cols = !c(subj),
 
 ind_slopes_long$cond <- factor(ind_slopes_long$cond, labels = levels(dat$cond))
 
-### mittlere Effekte umrechnen 
-# extrahiere posteriori Werte der Koeffizienten
+### compute predicted values and CIs per condition
+# extract posterior values for the LMM coefficients and merge all chains
 posterior_samples <- as_draws(m_reduced_bayes, variable = c("b_trial_ctr", "b_trial_ctr:condScrambled"))
 posterior_samples <- merge_chains(posterior_samples, variable = c("b_trial_ctr", "b_trial_ctr:condScrambled"))
 posterior_samples <- as_draws_df(posterior_samples)
 
-# Man kann aus der Posterior die KIs bestimmen, erstmal als Demo/Check
+# in order to compute CIs from the posterior, one can use quantiles from the posterior
+# for instance, this reproduces the CI for the trial effect from the summary
 fixef(m_reduced_bayes)["trial_ctr",]
 quantile(posterior_samples$b_trial_ctr, probs = c(0.025, 0.975))
-# für den Effekt in der anderen Bedingung, muss man die Koeffizienten addieren
+# one can compute the trial effect for the scrambled condition by 
+# adding the interaction coefficient to b_trial_ctr
+# to get the posterior distribution of the trial effect in the scrambled condition
+# we need to repeat this for all posterior samples and then we get the CIs for Figure 1
+# 
 posterior_samples$b_trial_ctr_scrambled <- posterior_samples$b_trial_ctr + posterior_samples$`b_trial_ctr:condScrambled`
 
-# berechne die mittleren slopes der beiden Bedingungen und generiere die KIs dafür
-# aus den posteriori Quantilen
 CIs <- apply(posterior_samples[,c("b_trial_ctr","b_trial_ctr_scrambled")], 2, quantile, probs = c(0.025, 0.975))
 CIs
 
