@@ -11,7 +11,7 @@
 
 <meta name="author" content="widmann" />
 
-<meta name="date" content="2024-03-19" />
+<meta name="date" content="2024-08-01" />
 
 <title>estimate_models.R</title>
 
@@ -352,15 +352,15 @@ display: none;
 
 <h1 class="title toc-ignore">estimate_models.R</h1>
 <h4 class="author">widmann</h4>
-<h4 class="date">2024-03-19</h4>
+<h4 class="date">2024-08-01</h4>
 
 </div>
 
 
 <pre class="r"><code># This script reproduces the linear mixed models of the manuscript &quot;Pupillometry
-# is sensitive to speech masking during story listening: The critical role of
-# modeling temporal trends&quot; by Andreas Widmann, Björn Herrmann, and Florian
-# Scharf.
+# is sensitive to speech masking during story listening: a commentary on the
+# critical role of modeling temporal trends&quot; by Andreas Widmann, Björn Herrmann,
+# and Florian Scharf.
 # 
 # Authors: Andreas Widmann, widmann@uni-leipzig.de and Florian Scharf, florian.scharf@uni-kassel.de
 # Copyright (c) 2024 Andreas Widmann, Leipzig University and Florian Scharf, University of Kassel
@@ -379,7 +379,7 @@ library(lmerTest)</code></pre>
 <pre class="r"><code>library(emmeans)
 library(MuMIn)
 library(sjPlot)</code></pre>
-<pre><code>## Install package &quot;strengejacke&quot; from GitHub (`devtools::install_github(&quot;strengejacke/strengejacke&quot;)`) to load all sj-packages at once!</code></pre>
+<pre><code>## Learn more about sjPlot with &#39;browseVignettes(&quot;sjPlot&quot;)&#39;.</code></pre>
 <pre class="r"><code>library(optimx)
 
 options(scipen = 4, width = 100)
@@ -388,14 +388,16 @@ rm(list = ls())
 # Load data
 load(&quot;data.Rdata&quot;)
 
-#### SNR x cond ----
-m1 &lt;- pa ~ snr_ctr * cond + (1 + cond | subj )
-fm1 &lt;- lmer(m1, data = dat, control = lmerControl(calc.derivs = F), REML = F)
+#### Model 1: SNR x cond ----
+m1 &lt;- pupil_area ~ snr_ctr * cond + (1 + cond | subj )
+fm1 &lt;- lmer(m1, data = dat,
+            control = lmerControl(calc.derivs = F, optimizer =&#39;optimx&#39;, optCtrl=list(method=&#39;nlminb&#39;)),
+            REML = F)
 summary(fm1)</code></pre>
 <pre><code>## Linear mixed model fit by maximum likelihood . t-tests use Satterthwaite&#39;s method [lmerModLmerTest]
 ## Formula: m1
 ##    Data: dat
-## Control: lmerControl(calc.derivs = F)
+## Control: lmerControl(calc.derivs = F, optimizer = &quot;optimx&quot;, optCtrl = list(method = &quot;nlminb&quot;))
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
 ##  13929.8  13969.2  -6956.9  13913.8     1004 
@@ -428,7 +430,7 @@ summary(fm1)</code></pre>
 <pre class="r"><code>r.squaredGLMM(fm1)</code></pre>
 <pre><code>## Warning: &#39;r.squaredGLMM&#39; now calculates a revised statistic. See the help page.</code></pre>
 <pre><code>##               R2m       R2c
-## [1,] 0.0009411148 0.7652321</code></pre>
+## [1,] 0.0009411138 0.7652323</code></pre>
 <pre class="r"><code>tab_model(fm1, digits = 1)</code></pre>
 <table style="border-collapse:collapse; border:none;">
 <tr>
@@ -436,7 +438,7 @@ summary(fm1)</code></pre>
  
 </th>
 <th colspan="3" style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm; ">
-pa
+pupil_area
 </th>
 </tr>
 <tr>
@@ -527,14 +529,14 @@ Random Effects
 τ<sub>00</sub> <sub>subj</sub>
 </td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3">
-163152.62
+163152.73
 </td>
 <tr>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
 τ<sub>11</sub> <sub>subj.condScrambled</sub>
 </td>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="3">
-21767.89
+21767.78
 </td>
 <tr>
 <td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">
@@ -574,10 +576,10 @@ Marginal R<sup>2</sup> / Conditional R<sup>2</sup>
 </td>
 </tr>
 </table>
-<pre class="r"><code>#### SNR x cond + trial x cond ----
+<pre class="r"><code>#### Model 2: SNR x cond + trial x cond ----
 # dat$cond = relevel(dat$cond, ref = &quot;Intact&quot; )
 # dat$cond = relevel(dat$cond, ref = &quot;Scrambled&quot; )
-m2 &lt;- pa ~ snr_ctr * cond + trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + cond + trial_ctr + I(trial_ctr ^ 2) | subj)
+m2 &lt;- pupil_area ~ snr_ctr * cond + trial_ctr * cond + I(trial_ctr ^ 2) * cond + (1 + cond + trial_ctr + I(trial_ctr ^ 2) | subj)
 fm2 &lt;- lmer(m2, data = dat,
             control = lmerControl(calc.derivs = F, optimizer =&#39;optimx&#39;, optCtrl=list(method=&#39;nlminb&#39;)),
             REML = F)
@@ -635,7 +637,7 @@ summary(fm2)</code></pre>
  
 </th>
 <th colspan="3" style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm; ">
-pa
+pupil_area
 </th>
 </tr>
 <tr>
@@ -855,7 +857,8 @@ Marginal R<sup>2</sup> / Conditional R<sup>2</sup>
 </td>
 </tr>
 </table>
-<pre class="r"><code>anova(fm1, fm2)</code></pre>
+<pre class="r"><code>#### Compare model fit ----
+anova(fm1, fm2)</code></pre>
 <pre><code>## Data: dat
 ## Models:
 ## fm1: m1

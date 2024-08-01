@@ -24,10 +24,10 @@ load(file = "data.Rdata")
 
 dat_cond_trial <- dat %>%
   group_by(cond, trial) %>%
-  summarise(pa_sd = sd(pa), pa_mean = mean(pa))
+  summarise(pupil_area_sd = sd(pupil_area), pupil_area_mean = mean(pupil_area))
 n <- nlevels(dat$subj)
-ggplot(dat_cond_trial, aes(x = trial, y = pa_mean, col = cond)) +
-  geom_ribbon(aes(min = pa_mean - pa_sd / sqrt(n) * 1.96, max = pa_mean + pa_sd / sqrt(n) * 1.96, fill = cond), color = NA, alpha = 0.15) +
+ggplot(dat_cond_trial, aes(x = trial, y = pupil_area_mean, col = cond)) +
+  geom_ribbon(aes(min = pupil_area_mean - pupil_area_sd / sqrt(n) * 1.96, max = pupil_area_mean + pupil_area_sd / sqrt(n) * 1.96, fill = cond), color = NA, alpha = 0.15) +
   geom_line() +
   geom_point(shape = 16, size = 2) +
   facet_grid(~ "Grand-average") +
