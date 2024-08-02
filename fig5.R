@@ -1,6 +1,7 @@
 # This script reproduces Fig. 5 of the manuscript "Pupillometry is sensitive to
-# speech masking during story listening: The critical role of modeling temporal
-# trends" by Andreas Widmann, Björn Herrmann, and Florian Scharf.
+# speech masking during story listening: a commentary on the critical role of
+# modeling temporal trends" by Andreas Widmann, Björn Herrmann, and Florian
+# Scharf.
 #
 # Authors: Florian Scharf, florian.scharf@uni-kassel.de and Andreas Widmann, widmann@uni-leipzig.de
 # Copyright (c) 2024 Florian Scharf, University of Kassel and Andreas Widmann, Leipzig University

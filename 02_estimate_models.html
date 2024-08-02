@@ -11,9 +11,9 @@
 
 <meta name="author" content="widmann" />
 
-<meta name="date" content="2024-08-01" />
+<meta name="date" content="2024-08-02" />
 
-<title>estimate_models.R</title>
+<title>02_estimate_models.R</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,9 +350,9 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">estimate_models.R</h1>
+<h1 class="title toc-ignore">02_estimate_models.R</h1>
 <h4 class="author">widmann</h4>
-<h4 class="date">2024-08-01</h4>
+<h4 class="date">2024-08-02</h4>
 
 </div>
 
@@ -379,7 +379,7 @@ library(lmerTest)</code></pre>
 <pre class="r"><code>library(emmeans)
 library(MuMIn)
 library(sjPlot)</code></pre>
-<pre><code>## Learn more about sjPlot with &#39;browseVignettes(&quot;sjPlot&quot;)&#39;.</code></pre>
+<pre><code>## #refugeeswelcome</code></pre>
 <pre class="r"><code>library(optimx)
 
 options(scipen = 4, width = 100)
@@ -393,6 +393,7 @@ m1 &lt;- pupil_area ~ snr_ctr * cond + (1 + cond | subj )
 fm1 &lt;- lmer(m1, data = dat,
             control = lmerControl(calc.derivs = F, optimizer =&#39;optimx&#39;, optCtrl=list(method=&#39;nlminb&#39;)),
             REML = F)
+
 summary(fm1)</code></pre>
 <pre><code>## Linear mixed model fit by maximum likelihood . t-tests use Satterthwaite&#39;s method [lmerModLmerTest]
 ## Formula: m1
@@ -583,6 +584,7 @@ m2 &lt;- pupil_area ~ snr_ctr * cond + trial_ctr * cond + I(trial_ctr ^ 2) * con
 fm2 &lt;- lmer(m2, data = dat,
             control = lmerControl(calc.derivs = F, optimizer =&#39;optimx&#39;, optCtrl=list(method=&#39;nlminb&#39;)),
             REML = F)
+
 summary(fm2)</code></pre>
 <pre><code>## Linear mixed model fit by maximum likelihood . t-tests use Satterthwaite&#39;s method [lmerModLmerTest]
 ## Formula: m2

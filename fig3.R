@@ -1,6 +1,7 @@
-# This script reproduces Fig. 2 of the manuscript "Pupillometry is sensitive to
-# speech masking during story listening: The critical role of modeling temporal
-# trends" by Andreas Widmann, Björn Herrmann, and Florian Scharf.
+# This script reproduces Fig. 3 of the manuscript "Pupillometry is sensitive to
+# speech masking during story listening: a commentary on the critical role of
+# modeling temporal trends" by Andreas Widmann, Björn Herrmann, and Florian
+# Scharf.
 #
 # Authors: Andreas Widmann, widmann@uni-leipzig.de and Florian Scharf, florian.scharf@uni-kassel.de
 # Copyright (c) 2024 Andreas Widmann, Leipzig University and Florian Scharf, University of Kassel
@@ -20,11 +21,11 @@ load("bayes_models.Rdata")
 
 #### Panel A: SNR x cond x trial_ctr ----
 
+# Estimate mean pupil area per SNR level, story type condition, and quarter of block
 emm_df <- rbind(emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(-10.5,-5.25), snr_ctr = -2:2), plotit = F, CIs = T),
                 emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(-5.25,0), snr_ctr = -2:2), plotit = F, CIs = T),
                 emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(0,5.25), snr_ctr = -2:2), plotit = F, CIs = T),
                 emmip(fm3_bayes, cond ~ snr_ctr, at = list(trial_ctr = c(5.25,10.5), snr_ctr = -2:2), plotit = F, CIs = T))
-
 
 emm_df$range = rep(1:4, each = 10)
 emm_df$snr = emm_df$snr_ctr * 5 + 6
@@ -44,6 +45,7 @@ ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
 
 #### Panel B: SNR slope x cond x trial_ctr ----
 
+# Estimate mean SNR effect per story type condition and trial
 emt <- emtrends(fm3_bayes, ~ cond * trial_ctr, var = "snr_ctr", at = list(trial_ctr=-10.5:10.5, snr_ctr=-2:2))
 emmeans(emt, ~ cond * trial_ctr)
 emt_df <- emmip(emt, ~ trial_ctr + cond, plotit = F, CIs = T)

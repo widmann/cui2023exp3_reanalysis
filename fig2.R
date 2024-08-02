@@ -1,6 +1,7 @@
 # This script reproduces Fig. 2 of the manuscript "Pupillometry is sensitive to
-# speech masking during story listening: The critical role of modeling temporal
-# trends" by Andreas Widmann, Björn Herrmann, and Florian Scharf.
+# speech masking during story listening: a commentary on the critical role of
+# modeling temporal trends" by Andreas Widmann, Björn Herrmann, and Florian
+# Scharf.
 #
 # Authors: Florian Scharf, florian.scharf@uni-kassel.de and Andreas Widmann, widmann@uni-leipzig.de
 # Copyright (c) 2024 Florian Scharf, University of Kassel and Andreas Widmann, Leipzig University
@@ -24,8 +25,11 @@ load("bayes_models.Rdata")
 
 #### Panel A: SNR x cond, CI version ----
 
+# Estimate mean pupil area per SNR level, story type condition
 emm_df <- emmip(fm2_bayes, cond ~ snr_ctr, at = list(trial_ctr = -10.5:10.5, snr_ctr = -2:2), plotit = F, CIs = T, PIs = F)
 emm_df$snr <- emm_df$snr_ctr * 5 + 6
+
+# Plot with regular standard errors (not displayed in the manuscript; see below)
 ggplot(emm_df, aes(x = snr, y = yvar, col = cond)) +
   geom_ribbon(aes(min = LCL, max = UCL, fill = cond), color = NA, alpha = 0.15) +
   geom_line() +

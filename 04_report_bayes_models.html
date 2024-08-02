@@ -9,11 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="fscharf" />
+<meta name="author" content="widmann" />
 
-<meta name="date" content="2024-03-20" />
+<meta name="date" content="2024-08-02" />
 
-<title>report_bayes_models.R</title>
+<title>04_report_bayes_models.R</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,9 +350,9 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">report_bayes_models.R</h1>
-<h4 class="author">fscharf</h4>
-<h4 class="date">2024-03-20</h4>
+<h1 class="title toc-ignore">04_report_bayes_models.R</h1>
+<h4 class="author">widmann</h4>
+<h4 class="date">2024-08-02</h4>
 
 </div>
 
@@ -379,8 +379,10 @@ library(brms)</code></pre>
 options(scipen = 4, width = 100)
 options(mc.cores = 4)
 
+# Load the Bayesian linear mixed models computed in 03_estimate_bayes_models.R
 load(file = &quot;bayes_models.Rdata&quot;)
 
+# Report full model output
 summary(m_reduced_bayes)</code></pre>
 <pre><code>##  Family: gaussian 
 ##   Links: mu = identity; sigma = identity 
@@ -392,62 +394,62 @@ summary(m_reduced_bayes)</code></pre>
 ## Group-Level Effects: 
 ## ~subj (Number of levels: 23) 
 ##                                                         Estimate Est.Error l-95% CI u-95% CI Rhat
-## sd(Intercept)                                             422.26     67.69   312.91   575.22 1.00
-## sd(condScrambled)                                         200.01     34.41   143.71   277.98 1.00
-## sd(trial_ctr)                                              17.72      2.86    13.04    24.13 1.00
-## sd(Itrial_ctrE2)                                            2.01      0.33     1.47     2.76 1.00
-## sd(condScrambled:trial_ctr)                                 8.91      2.06     5.36    13.48 1.00
-## sd(condScrambled:Itrial_ctrE2)                              1.60      0.33     1.03     2.32 1.00
-## cor(Intercept,condScrambled)                               -0.24      0.18    -0.57     0.14 1.00
-## cor(Intercept,trial_ctr)                                   -0.29      0.18    -0.61     0.08 1.00
-## cor(condScrambled,trial_ctr)                                0.10      0.19    -0.29     0.46 1.00
-## cor(Intercept,Itrial_ctrE2)                                 0.19      0.18    -0.19     0.52 1.00
-## cor(condScrambled,Itrial_ctrE2)                             0.09      0.19    -0.30     0.46 1.00
-## cor(trial_ctr,Itrial_ctrE2)                                -0.63      0.13    -0.84    -0.33 1.00
-## cor(Intercept,condScrambled:trial_ctr)                     -0.29      0.20    -0.65     0.14 1.00
-## cor(condScrambled,condScrambled:trial_ctr)                 -0.20      0.22    -0.59     0.25 1.00
-## cor(trial_ctr,condScrambled:trial_ctr)                     -0.20      0.21    -0.58     0.23 1.00
-## cor(Itrial_ctrE2,condScrambled:trial_ctr)                  -0.07      0.22    -0.48     0.36 1.00
-## cor(Intercept,condScrambled:Itrial_ctrE2)                  -0.06      0.21    -0.45     0.35 1.00
+## sd(Intercept)                                             423.87     67.27   314.78   579.21 1.00
+## sd(condScrambled)                                         198.69     34.17   143.97   275.57 1.00
+## sd(trial_ctr)                                              17.73      2.83    13.08    24.05 1.00
+## sd(Itrial_ctrE2)                                            2.01      0.33     1.46     2.74 1.00
+## sd(condScrambled:trial_ctr)                                 8.92      2.07     5.43    13.57 1.00
+## sd(condScrambled:Itrial_ctrE2)                              1.60      0.33     1.04     2.33 1.00
+## cor(Intercept,condScrambled)                               -0.24      0.18    -0.56     0.14 1.00
+## cor(Intercept,trial_ctr)                                   -0.29      0.18    -0.60     0.08 1.00
+## cor(condScrambled,trial_ctr)                                0.09      0.19    -0.29     0.46 1.00
+## cor(Intercept,Itrial_ctrE2)                                 0.19      0.18    -0.19     0.53 1.00
+## cor(condScrambled,Itrial_ctrE2)                             0.09      0.19    -0.30     0.45 1.00
+## cor(trial_ctr,Itrial_ctrE2)                                -0.63      0.14    -0.85    -0.32 1.00
+## cor(Intercept,condScrambled:trial_ctr)                     -0.29      0.21    -0.65     0.14 1.00
+## cor(condScrambled,condScrambled:trial_ctr)                 -0.19      0.22    -0.59     0.25 1.00
+## cor(trial_ctr,condScrambled:trial_ctr)                     -0.20      0.21    -0.58     0.24 1.00
+## cor(Itrial_ctrE2,condScrambled:trial_ctr)                  -0.07      0.21    -0.47     0.36 1.00
+## cor(Intercept,condScrambled:Itrial_ctrE2)                  -0.06      0.21    -0.45     0.34 1.00
 ## cor(condScrambled,condScrambled:Itrial_ctrE2)              -0.38      0.19    -0.70     0.03 1.00
 ## cor(trial_ctr,condScrambled:Itrial_ctrE2)                   0.33      0.20    -0.10     0.68 1.00
-## cor(Itrial_ctrE2,condScrambled:Itrial_ctrE2)               -0.72      0.13    -0.90    -0.41 1.00
-## cor(condScrambled:trial_ctr,condScrambled:Itrial_ctrE2)    -0.18      0.23    -0.61     0.28 1.00
+## cor(Itrial_ctrE2,condScrambled:Itrial_ctrE2)               -0.72      0.13    -0.90    -0.42 1.00
+## cor(condScrambled:trial_ctr,condScrambled:Itrial_ctrE2)    -0.19      0.23    -0.61     0.28 1.00
 ##                                                         Bulk_ESS Tail_ESS
-## sd(Intercept)                                               4353     7425
-## sd(condScrambled)                                           7045    10705
-## sd(trial_ctr)                                               8307    11943
-## sd(Itrial_ctrE2)                                            9576    12658
-## sd(condScrambled:trial_ctr)                                11010    13710
-## sd(condScrambled:Itrial_ctrE2)                              8129    12557
-## cor(Intercept,condScrambled)                                6653    10231
-## cor(Intercept,trial_ctr)                                    7012    10591
-## cor(condScrambled,trial_ctr)                                6276     9924
-## cor(Intercept,Itrial_ctrE2)                                 8769    11733
-## cor(condScrambled,Itrial_ctrE2)                             7475    11431
-## cor(trial_ctr,Itrial_ctrE2)                                10018    13814
-## cor(Intercept,condScrambled:trial_ctr)                     14311    15534
-## cor(condScrambled,condScrambled:trial_ctr)                 14371    14910
-## cor(trial_ctr,condScrambled:trial_ctr)                     14006    14701
-## cor(Itrial_ctrE2,condScrambled:trial_ctr)                  15108    16184
-## cor(Intercept,condScrambled:Itrial_ctrE2)                  12447    14008
-## cor(condScrambled,condScrambled:Itrial_ctrE2)              11792    15124
-## cor(trial_ctr,condScrambled:Itrial_ctrE2)                  11992    14328
-## cor(Itrial_ctrE2,condScrambled:Itrial_ctrE2)               13651    15518
-## cor(condScrambled:trial_ctr,condScrambled:Itrial_ctrE2)    15820    15712
+## sd(Intercept)                                               4578     8172
+## sd(condScrambled)                                           7008    11039
+## sd(trial_ctr)                                               7290    11387
+## sd(Itrial_ctrE2)                                            8755    12345
+## sd(condScrambled:trial_ctr)                                 9561    12461
+## sd(condScrambled:Itrial_ctrE2)                              8781    12635
+## cor(Intercept,condScrambled)                                6754    10140
+## cor(Intercept,trial_ctr)                                    6248     9821
+## cor(condScrambled,trial_ctr)                                6298    10645
+## cor(Intercept,Itrial_ctrE2)                                 8813    10502
+## cor(condScrambled,Itrial_ctrE2)                             8429    12394
+## cor(trial_ctr,Itrial_ctrE2)                                 9593    12950
+## cor(Intercept,condScrambled:trial_ctr)                     13204    13687
+## cor(condScrambled,condScrambled:trial_ctr)                 13671    14885
+## cor(trial_ctr,condScrambled:trial_ctr)                     14917    15687
+## cor(Itrial_ctrE2,condScrambled:trial_ctr)                  14332    15125
+## cor(Intercept,condScrambled:Itrial_ctrE2)                  12599    14476
+## cor(condScrambled,condScrambled:Itrial_ctrE2)              12344    15131
+## cor(trial_ctr,condScrambled:Itrial_ctrE2)                  11744    14155
+## cor(Itrial_ctrE2,condScrambled:Itrial_ctrE2)               13166    15241
+## cor(condScrambled:trial_ctr,condScrambled:Itrial_ctrE2)    15630    17145
 ## 
 ## Population-Level Effects: 
 ##                            Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept                   1289.32     89.22  1113.51  1467.90 1.00     2321     4495
-## trial_ctr                    -17.87      3.77   -25.31   -10.44 1.00     4115     7794
-## condScrambled                 29.45     43.67   -56.65   116.11 1.00     4027     7635
-## Itrial_ctrE2                   1.90      0.45     1.03     2.79 1.00     5478     9550
-## trial_ctr:condScrambled       -2.66      2.19    -7.00     1.67 1.00     8155    12274
-## condScrambled:Itrial_ctrE2    -0.41      0.39    -1.19     0.36 1.00     7240    10393
+## Intercept                   1290.18     88.08  1117.37  1463.60 1.00     2126     4405
+## trial_ctr                    -17.89      3.85   -25.54   -10.35 1.00     3968     6981
+## condScrambled                 29.20     43.92   -57.45   117.07 1.00     3743     6313
+## Itrial_ctrE2                   1.90      0.45     1.01     2.79 1.00     5211     8443
+## trial_ctr:condScrambled       -2.63      2.20    -7.00     1.74 1.00     8778    11911
+## condScrambled:Itrial_ctrE2    -0.41      0.40    -1.18     0.38 1.00     6770    10978
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma   113.38      2.73   108.20   118.85 1.00    28502    14971
+## sigma   113.40      2.74   108.16   118.99 1.00    29488    14203
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -463,60 +465,60 @@ summary(m_reduced_bayes)</code></pre>
 ## Group-Level Effects: 
 ## ~subj (Number of levels: 23) 
 ##                                          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-## sd(Intercept)                              432.16     70.66   318.83   594.27 1.00    10239
-## sd(snr_ctr)                                  9.21      5.14     0.68    20.17 1.00     7638
-## sd(condScrambled)                          186.08     33.24   133.53   263.05 1.00    16967
-## sd(trial_ctr)                               24.72      3.55    18.88    32.79 1.00    18040
-## sd(Itrial_ctrE2)                             2.20      0.33     1.65     2.95 1.00    19059
-## sd(snr_ctr:condScrambled)                   15.47      9.16     0.93    34.50 1.00     6454
-## cor(Intercept,snr_ctr)                      -0.34      0.30    -0.82     0.34 1.00    40662
-## cor(Intercept,condScrambled)                -0.25      0.19    -0.59     0.14 1.00    17634
-## cor(snr_ctr,condScrambled)                   0.05      0.31    -0.55     0.64 1.00     4742
-## cor(Intercept,trial_ctr)                    -0.41      0.20    -0.74     0.03 1.00     5843
-## cor(snr_ctr,trial_ctr)                      -0.05      0.33    -0.66     0.60 1.00     4303
-## cor(condScrambled,trial_ctr)                 0.15      0.23    -0.32     0.58 1.00     8952
-## cor(Intercept,Itrial_ctrE2)                  0.32      0.21    -0.14     0.68 1.00     6337
-## cor(snr_ctr,Itrial_ctrE2)                   -0.09      0.33    -0.69     0.56 1.00     4252
-## cor(condScrambled,Itrial_ctrE2)             -0.18      0.24    -0.60     0.31 1.00     9321
-## cor(trial_ctr,Itrial_ctrE2)                 -0.86      0.07    -0.95    -0.70 1.00    26735
-## cor(Intercept,snr_ctr:condScrambled)         0.06      0.30    -0.54     0.62 1.00    42575
-## cor(snr_ctr,snr_ctr:condScrambled)          -0.32      0.37    -0.86     0.52 1.00    10234
-## cor(condScrambled,snr_ctr:condScrambled)    -0.02      0.30    -0.59     0.58 1.00    33957
-## cor(trial_ctr,snr_ctr:condScrambled)         0.04      0.32    -0.59     0.64 1.00    38316
-## cor(Itrial_ctrE2,snr_ctr:condScrambled)     -0.01      0.32    -0.63     0.61 1.00    35240
+## sd(Intercept)                              433.30     71.00   319.60   596.68 1.00    11522
+## sd(snr_ctr)                                  9.02      5.15     0.65    20.10 1.00     8817
+## sd(condScrambled)                          185.45     33.10   133.30   262.08 1.00    18099
+## sd(trial_ctr)                               24.74      3.58    18.89    32.83 1.00    19595
+## sd(Itrial_ctrE2)                             2.20      0.34     1.65     2.96 1.00    20755
+## sd(snr_ctr:condScrambled)                   15.23      9.19     0.84    34.51 1.00     6805
+## cor(Intercept,snr_ctr)                      -0.34      0.30    -0.82     0.35 1.00    44384
+## cor(Intercept,condScrambled)                -0.26      0.19    -0.59     0.14 1.00    18066
+## cor(snr_ctr,condScrambled)                   0.05      0.31    -0.56     0.64 1.00     5287
+## cor(Intercept,trial_ctr)                    -0.41      0.20    -0.74     0.04 1.00     5475
+## cor(snr_ctr,trial_ctr)                      -0.04      0.33    -0.66     0.60 1.00     4780
+## cor(condScrambled,trial_ctr)                 0.16      0.23    -0.32     0.58 1.00    10281
+## cor(Intercept,Itrial_ctrE2)                  0.32      0.21    -0.14     0.68 1.00     5860
+## cor(snr_ctr,Itrial_ctrE2)                   -0.10      0.33    -0.69     0.57 1.00     4704
+## cor(condScrambled,Itrial_ctrE2)             -0.18      0.24    -0.60     0.30 1.00    10656
+## cor(trial_ctr,Itrial_ctrE2)                 -0.86      0.07    -0.96    -0.70 1.00    27326
+## cor(Intercept,snr_ctr:condScrambled)         0.06      0.30    -0.55     0.63 1.00    48901
+## cor(snr_ctr,snr_ctr:condScrambled)          -0.31      0.37    -0.86     0.53 1.00    12106
+## cor(condScrambled,snr_ctr:condScrambled)    -0.01      0.30    -0.59     0.58 1.00    37520
+## cor(trial_ctr,snr_ctr:condScrambled)         0.04      0.32    -0.59     0.64 1.00    40636
+## cor(Itrial_ctrE2,snr_ctr:condScrambled)     -0.01      0.33    -0.63     0.62 1.00    38524
 ##                                          Tail_ESS
-## sd(Intercept)                               18375
-## sd(snr_ctr)                                 11488
-## sd(condScrambled)                           27310
-## sd(trial_ctr)                               26200
-## sd(Itrial_ctrE2)                            26970
-## sd(snr_ctr:condScrambled)                   16440
-## cor(Intercept,snr_ctr)                      25707
-## cor(Intercept,condScrambled)                24725
-## cor(snr_ctr,condScrambled)                   9195
-## cor(Intercept,trial_ctr)                    11079
-## cor(snr_ctr,trial_ctr)                       7057
-## cor(condScrambled,trial_ctr)                18842
-## cor(Intercept,Itrial_ctrE2)                 12558
-## cor(snr_ctr,Itrial_ctrE2)                   10092
-## cor(condScrambled,Itrial_ctrE2)             18920
-## cor(trial_ctr,Itrial_ctrE2)                 37095
-## cor(Intercept,snr_ctr:condScrambled)        30519
-## cor(snr_ctr,snr_ctr:condScrambled)          23176
-## cor(condScrambled,snr_ctr:condScrambled)    33072
-## cor(trial_ctr,snr_ctr:condScrambled)        34267
-## cor(Itrial_ctrE2,snr_ctr:condScrambled)     36795
+## sd(Intercept)                               20757
+## sd(snr_ctr)                                 14196
+## sd(condScrambled)                           27964
+## sd(trial_ctr)                               27372
+## sd(Itrial_ctrE2)                            28946
+## sd(snr_ctr:condScrambled)                   16491
+## cor(Intercept,snr_ctr)                      29315
+## cor(Intercept,condScrambled)                26643
+## cor(snr_ctr,condScrambled)                  10099
+## cor(Intercept,trial_ctr)                     9692
+## cor(snr_ctr,trial_ctr)                       8173
+## cor(condScrambled,trial_ctr)                19977
+## cor(Intercept,Itrial_ctrE2)                 11883
+## cor(snr_ctr,Itrial_ctrE2)                   10780
+## cor(condScrambled,Itrial_ctrE2)             20124
+## cor(trial_ctr,Itrial_ctrE2)                 36847
+## cor(Intercept,snr_ctr:condScrambled)        32734
+## cor(snr_ctr,snr_ctr:condScrambled)          26438
+## cor(condScrambled,snr_ctr:condScrambled)    33173
+## cor(trial_ctr,snr_ctr:condScrambled)        36824
+## cor(Itrial_ctrE2,snr_ctr:condScrambled)     37469
 ## 
 ## Population-Level Effects: 
 ##                       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept              1170.86    109.56   955.76  1386.50 1.00     3743     6115
-## snr_ctr                  -8.23      4.95   -18.13     1.58 1.00    12126    20286
-## condScrambled            36.95     52.92   -65.94   142.51 1.00     7139    14284
-## snr_ctr:condScrambled    12.55      7.50    -2.33    27.59 1.00    29835    29561
+## Intercept              1171.68    109.32   957.96  1387.90 1.00     3742     5825
+## snr_ctr                  -8.15      4.88   -17.84     1.50 1.00    13622    23019
+## condScrambled            37.68     52.67   -65.67   143.49 1.00     8247    16468
+## snr_ctr:condScrambled    12.50      7.45    -2.25    27.50 1.00    33017    28602
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma   119.14      2.88   113.62   124.92 1.00    41038    34818
+## sigma   119.18      2.85   113.76   124.87 1.00    46785    36429
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -532,64 +534,64 @@ summary(m_reduced_bayes)</code></pre>
 ## Group-Level Effects: 
 ## ~subj (Number of levels: 23) 
 ##                                          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-## sd(Intercept)                              415.11     65.26   309.55   563.84 1.00    13482
-## sd(snr_ctr)                                  7.99      4.85     0.50    18.60 1.00     8995
-## sd(condScrambled)                          181.37     31.80   130.67   254.81 1.00    26397
-## sd(trial_ctr)                               16.87      2.62    12.61    22.82 1.00    25890
-## sd(Itrial_ctrE2)                             1.49      0.26     1.07     2.09 1.00    30208
-## sd(snr_ctr:condScrambled)                   13.79      8.84     0.64    32.66 1.00     7497
-## cor(Intercept,snr_ctr)                      -0.33      0.31    -0.82     0.39 1.00    58349
-## cor(Intercept,condScrambled)                -0.24      0.19    -0.57     0.14 1.00    25818
-## cor(snr_ctr,condScrambled)                   0.04      0.31    -0.58     0.64 1.00     5666
-## cor(Intercept,trial_ctr)                    -0.39      0.17    -0.67    -0.03 1.00    27519
-## cor(snr_ctr,trial_ctr)                      -0.06      0.31    -0.65     0.57 1.00     6318
-## cor(condScrambled,trial_ctr)                 0.13      0.19    -0.25     0.48 1.00    34487
-## cor(Intercept,Itrial_ctrE2)                  0.24      0.19    -0.15     0.58 1.00    30993
-## cor(snr_ctr,Itrial_ctrE2)                   -0.12      0.32    -0.69     0.53 1.00     6423
-## cor(condScrambled,Itrial_ctrE2)             -0.17      0.20    -0.53     0.23 1.00    40673
-## cor(trial_ctr,Itrial_ctrE2)                 -0.71      0.12    -0.90    -0.42 1.00    35546
-## cor(Intercept,snr_ctr:condScrambled)         0.04      0.31    -0.58     0.62 1.00    65492
-## cor(snr_ctr,snr_ctr:condScrambled)          -0.28      0.38    -0.85     0.55 1.00    13460
-## cor(condScrambled,snr_ctr:condScrambled)    -0.01      0.30    -0.60     0.59 1.00    47785
-## cor(trial_ctr,snr_ctr:condScrambled)         0.04      0.30    -0.56     0.61 1.00    49098
-## cor(Itrial_ctrE2,snr_ctr:condScrambled)     -0.01      0.31    -0.60     0.59 1.00    41411
+## sd(Intercept)                              413.48     64.50   309.89   560.84 1.00    13116
+## sd(snr_ctr)                                  7.98      4.84     0.45    18.55 1.00     9387
+## sd(condScrambled)                          181.65     31.97   130.90   254.97 1.00    22941
+## sd(trial_ctr)                               16.84      2.62    12.60    22.81 1.00    25895
+## sd(Itrial_ctrE2)                             1.49      0.26     1.07     2.08 1.00    32377
+## sd(snr_ctr:condScrambled)                   13.66      8.77     0.65    32.45 1.00     7786
+## cor(Intercept,snr_ctr)                      -0.33      0.31    -0.82     0.37 1.00    53292
+## cor(Intercept,condScrambled)                -0.24      0.18    -0.57     0.15 1.00    25084
+## cor(snr_ctr,condScrambled)                   0.05      0.32    -0.58     0.64 1.00     5535
+## cor(Intercept,trial_ctr)                    -0.39      0.16    -0.67    -0.03 1.00    27653
+## cor(snr_ctr,trial_ctr)                      -0.07      0.31    -0.65     0.57 1.00     6657
+## cor(condScrambled,trial_ctr)                 0.13      0.19    -0.25     0.48 1.00    33228
+## cor(Intercept,Itrial_ctrE2)                  0.25      0.19    -0.14     0.58 1.00    31852
+## cor(snr_ctr,Itrial_ctrE2)                   -0.12      0.32    -0.69     0.54 1.00     6514
+## cor(condScrambled,Itrial_ctrE2)             -0.17      0.20    -0.53     0.24 1.00    39792
+## cor(trial_ctr,Itrial_ctrE2)                 -0.72      0.12    -0.90    -0.42 1.00    37812
+## cor(Intercept,snr_ctr:condScrambled)         0.04      0.31    -0.57     0.62 1.00    62442
+## cor(snr_ctr,snr_ctr:condScrambled)          -0.27      0.38    -0.85     0.57 1.00    13857
+## cor(condScrambled,snr_ctr:condScrambled)    -0.01      0.31    -0.60     0.59 1.00    47159
+## cor(trial_ctr,snr_ctr:condScrambled)         0.04      0.30    -0.56     0.61 1.00    46458
+## cor(Itrial_ctrE2,snr_ctr:condScrambled)     -0.01      0.31    -0.60     0.59 1.00    44200
 ##                                          Tail_ESS
-## sd(Intercept)                               23670
-## sd(snr_ctr)                                 15852
-## sd(condScrambled)                           33304
-## sd(trial_ctr)                               31908
-## sd(Itrial_ctrE2)                            35170
-## sd(snr_ctr:condScrambled)                   20931
-## cor(Intercept,snr_ctr)                      31263
-## cor(Intercept,condScrambled)                32991
-## cor(snr_ctr,condScrambled)                  11075
-## cor(Intercept,trial_ctr)                    32645
-## cor(snr_ctr,trial_ctr)                       9447
-## cor(condScrambled,trial_ctr)                38001
-## cor(Intercept,Itrial_ctrE2)                 35690
-## cor(snr_ctr,Itrial_ctrE2)                   13506
-## cor(condScrambled,Itrial_ctrE2)             38982
-## cor(trial_ctr,Itrial_ctrE2)                 41289
-## cor(Intercept,snr_ctr:condScrambled)        33213
-## cor(snr_ctr,snr_ctr:condScrambled)          27803
-## cor(condScrambled,snr_ctr:condScrambled)    35282
-## cor(trial_ctr,snr_ctr:condScrambled)        35572
-## cor(Itrial_ctrE2,snr_ctr:condScrambled)     37387
+## sd(Intercept)                               21919
+## sd(snr_ctr)                                 16532
+## sd(condScrambled)                           32800
+## sd(trial_ctr)                               31934
+## sd(Itrial_ctrE2)                            35638
+## sd(snr_ctr:condScrambled)                   21218
+## cor(Intercept,snr_ctr)                      29453
+## cor(Intercept,condScrambled)                31920
+## cor(snr_ctr,condScrambled)                  10941
+## cor(Intercept,trial_ctr)                    32139
+## cor(snr_ctr,trial_ctr)                       8441
+## cor(condScrambled,trial_ctr)                37512
+## cor(Intercept,Itrial_ctrE2)                 35768
+## cor(snr_ctr,Itrial_ctrE2)                   12424
+## cor(condScrambled,Itrial_ctrE2)             41220
+## cor(trial_ctr,Itrial_ctrE2)                 41339
+## cor(Intercept,snr_ctr:condScrambled)        32744
+## cor(snr_ctr,snr_ctr:condScrambled)          30381
+## cor(condScrambled,snr_ctr:condScrambled)    33379
+## cor(trial_ctr,snr_ctr:condScrambled)        34841
+## cor(Itrial_ctrE2,snr_ctr:condScrambled)     36013
 ## 
 ## Population-Level Effects: 
 ##                            Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept                   1290.16     86.42  1119.31  1460.53 1.00     6184    12046
-## snr_ctr                      -10.16      4.19   -18.44    -1.90 1.00    51926    39017
-## condScrambled                 32.33     40.17   -46.45   111.36 1.00    19333    28878
-## trial_ctr                    -17.90      3.65   -25.07   -10.68 1.00    16852    26930
-## Itrial_ctrE2                   1.99      0.35     1.29     2.69 1.00    23910    32342
-## snr_ctr:condScrambled         15.32      6.26     2.94    27.73 1.00    55396    38891
-## condScrambled:trial_ctr       -2.66      1.17    -4.95    -0.37 1.00   120205    32997
-## condScrambled:Itrial_ctrE2    -0.56      0.21    -0.98    -0.14 1.00   102127    39054
+## Intercept                   1288.65     86.21  1118.28  1456.13 1.00     5574    11382
+## snr_ctr                      -10.14      4.17   -18.31    -1.88 1.00    51522    39165
+## condScrambled                 32.68     40.22   -46.77   113.00 1.00    17407    29060
+## trial_ctr                    -17.88      3.64   -25.01   -10.64 1.00    16224    26725
+## Itrial_ctrE2                   1.98      0.35     1.29     2.67 1.00    23838    32470
+## snr_ctr:condScrambled         15.32      6.17     3.11    27.45 1.00    56635    40141
+## condScrambled:trial_ctr       -2.66      1.16    -4.92    -0.42 1.00   116856    35378
+## condScrambled:Itrial_ctrE2    -0.56      0.21    -0.98    -0.14 1.00   105892    37558
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma   118.66      2.86   113.16   124.38 1.00    50449    35465
+## sigma   118.67      2.84   113.28   124.36 1.00    49179    33638
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -605,71 +607,72 @@ summary(m_reduced_bayes)</code></pre>
 ## Group-Level Effects: 
 ## ~subj (Number of levels: 23) 
 ##                                          Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-## sd(Intercept)                              413.69     64.21   309.64   559.50 1.00    13835
-## sd(snr_ctr)                                  8.27      4.95     0.49    18.96 1.00     8879
-## sd(condScrambled)                          181.80     31.75   131.74   254.43 1.00    23759
-## sd(trial_ctr)                               16.88      2.65    12.59    22.86 1.00    24820
-## sd(Itrial_ctrE2)                             1.49      0.26     1.06     2.08 1.00    28860
-## sd(snr_ctr:condScrambled)                   14.20      9.00     0.69    33.24 1.00     7433
-## cor(Intercept,snr_ctr)                      -0.34      0.31    -0.82     0.37 1.00    56464
-## cor(Intercept,condScrambled)                -0.24      0.19    -0.58     0.14 1.00    24351
-## cor(snr_ctr,condScrambled)                   0.06      0.31    -0.56     0.65 1.00     5493
-## cor(Intercept,trial_ctr)                    -0.38      0.17    -0.67    -0.03 1.00    25401
-## cor(snr_ctr,trial_ctr)                      -0.07      0.31    -0.63     0.57 1.00     6578
-## cor(condScrambled,trial_ctr)                 0.13      0.19    -0.25     0.49 1.00    33602
-## cor(Intercept,Itrial_ctrE2)                  0.25      0.19    -0.15     0.59 1.00    31379
-## cor(snr_ctr,Itrial_ctrE2)                   -0.13      0.32    -0.69     0.53 1.00     7142
-## cor(condScrambled,Itrial_ctrE2)             -0.16      0.20    -0.53     0.24 1.00    39343
-## cor(trial_ctr,Itrial_ctrE2)                 -0.72      0.12    -0.90    -0.42 1.00    35429
-## cor(Intercept,snr_ctr:condScrambled)         0.05      0.31    -0.57     0.62 1.00    61190
-## cor(snr_ctr,snr_ctr:condScrambled)          -0.29      0.38    -0.86     0.55 1.00    13602
-## cor(condScrambled,snr_ctr:condScrambled)    -0.02      0.30    -0.60     0.58 1.00    43778
-## cor(trial_ctr,snr_ctr:condScrambled)         0.04      0.30    -0.55     0.61 1.00    46224
-## cor(Itrial_ctrE2,snr_ctr:condScrambled)     -0.00      0.30    -0.59     0.59 1.00    43656
+## sd(Intercept)                              414.02     64.75   309.40   561.74 1.00    13495
+## sd(snr_ctr)                                  8.33      4.93     0.52    19.03 1.00     8770
+## sd(condScrambled)                          182.17     31.72   131.35   255.00 1.00    23946
+## sd(trial_ctr)                               16.86      2.63    12.60    22.79 1.00    24203
+## sd(Itrial_ctrE2)                             1.49      0.26     1.06     2.08 1.00    29098
+## sd(snr_ctr:condScrambled)                   14.20      8.94     0.69    32.88 1.00     7148
+## cor(Intercept,snr_ctr)                      -0.34      0.30    -0.82     0.36 1.00    55352
+## cor(Intercept,condScrambled)                -0.24      0.19    -0.57     0.15 1.00    23775
+## cor(snr_ctr,condScrambled)                   0.05      0.32    -0.57     0.64 1.00     5224
+## cor(Intercept,trial_ctr)                    -0.38      0.17    -0.67    -0.02 1.00    26118
+## cor(snr_ctr,trial_ctr)                      -0.07      0.31    -0.64     0.56 1.00     6801
+## cor(condScrambled,trial_ctr)                 0.13      0.19    -0.25     0.49 1.00    32686
+## cor(Intercept,Itrial_ctrE2)                  0.25      0.19    -0.15     0.59 1.00    31848
+## cor(snr_ctr,Itrial_ctrE2)                   -0.12      0.31    -0.69     0.53 1.00     7284
+## cor(condScrambled,Itrial_ctrE2)             -0.16      0.20    -0.53     0.24 1.00    39309
+## cor(trial_ctr,Itrial_ctrE2)                 -0.72      0.12    -0.90    -0.43 1.00    34494
+## cor(Intercept,snr_ctr:condScrambled)         0.05      0.30    -0.57     0.62 1.00    62354
+## cor(snr_ctr,snr_ctr:condScrambled)          -0.29      0.38    -0.86     0.53 1.00    13994
+## cor(condScrambled,snr_ctr:condScrambled)    -0.02      0.30    -0.60     0.58 1.00    43908
+## cor(trial_ctr,snr_ctr:condScrambled)         0.04      0.30    -0.55     0.61 1.00    45547
+## cor(Itrial_ctrE2,snr_ctr:condScrambled)     -0.00      0.30    -0.59     0.59 1.00    42752
 ##                                          Tail_ESS
-## sd(Intercept)                               22380
-## sd(snr_ctr)                                 16446
-## sd(condScrambled)                           33336
-## sd(trial_ctr)                               32150
-## sd(Itrial_ctrE2)                            35176
-## sd(snr_ctr:condScrambled)                   19012
-## cor(Intercept,snr_ctr)                      28900
-## cor(Intercept,condScrambled)                32216
-## cor(snr_ctr,condScrambled)                  11160
-## cor(Intercept,trial_ctr)                    31257
-## cor(snr_ctr,trial_ctr)                       9555
-## cor(condScrambled,trial_ctr)                36542
-## cor(Intercept,Itrial_ctrE2)                 36662
-## cor(snr_ctr,Itrial_ctrE2)                   14127
-## cor(condScrambled,Itrial_ctrE2)             39899
-## cor(trial_ctr,Itrial_ctrE2)                 40321
-## cor(Intercept,snr_ctr:condScrambled)        31044
-## cor(snr_ctr,snr_ctr:condScrambled)          30917
-## cor(condScrambled,snr_ctr:condScrambled)    36134
-## cor(trial_ctr,snr_ctr:condScrambled)        33660
-## cor(Itrial_ctrE2,snr_ctr:condScrambled)     37641
+## sd(Intercept)                               22790
+## sd(snr_ctr)                                 15329
+## sd(condScrambled)                           32398
+## sd(trial_ctr)                               33288
+## sd(Itrial_ctrE2)                            32862
+## sd(snr_ctr:condScrambled)                   19359
+## cor(Intercept,snr_ctr)                      29917
+## cor(Intercept,condScrambled)                31207
+## cor(snr_ctr,condScrambled)                  10647
+## cor(Intercept,trial_ctr)                    32730
+## cor(snr_ctr,trial_ctr)                       8224
+## cor(condScrambled,trial_ctr)                37572
+## cor(Intercept,Itrial_ctrE2)                 36441
+## cor(snr_ctr,Itrial_ctrE2)                   13405
+## cor(condScrambled,Itrial_ctrE2)             39565
+## cor(trial_ctr,Itrial_ctrE2)                 41612
+## cor(Intercept,snr_ctr:condScrambled)        34006
+## cor(snr_ctr,snr_ctr:condScrambled)          31350
+## cor(condScrambled,snr_ctr:condScrambled)    35156
+## cor(trial_ctr,snr_ctr:condScrambled)        35196
+## cor(Itrial_ctrE2,snr_ctr:condScrambled)     37741
 ## 
 ## Population-Level Effects: 
 ##                                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept                        1289.47     84.30  1120.72  1455.39 1.00     5864    12232
-## snr_ctr                           -10.10      4.19   -18.28    -1.80 1.00    47010    38938
-## condScrambled                      32.23     40.08   -46.89   110.79 1.00    18617    27527
-## trial_ctr                         -18.50      3.64   -25.76   -11.33 1.00    16576    26629
-## Itrial_ctrE2                        1.97      0.35     1.28     2.65 1.00    23144    31910
-## snr_ctr:condScrambled              15.26      6.29     2.82    27.78 1.00    56121    38158
-## snr_ctr:trial_ctr                   1.30      0.55     0.21     2.39 1.00    68624    40872
-## condScrambled:trial_ctr            -1.84      1.23    -4.27     0.57 1.00   100045    38536
-## condScrambled:Itrial_ctrE2         -0.53      0.21    -0.95    -0.11 1.00   100317    37481
-## snr_ctr:condScrambled:trial_ctr    -1.67      0.78    -3.20    -0.15 1.00    64266    41467
+## Intercept                        1290.56     85.28  1121.08  1459.15 1.00     5524    11340
+## snr_ctr                           -10.10      4.21   -18.36    -1.77 1.00    44930    38507
+## condScrambled                      31.53     40.17   -47.58   111.00 1.00    17067    27562
+## trial_ctr                         -18.54      3.66   -25.84   -11.36 1.00    15037    24946
+## Itrial_ctrE2                        1.97      0.35     1.28     2.66 1.00    22910    32632
+## snr_ctr:condScrambled              15.26      6.24     2.95    27.58 1.00    52888    36242
+## snr_ctr:trial_ctr                   1.30      0.55     0.22     2.38 1.00    66820    41397
+## condScrambled:trial_ctr            -1.85      1.23    -4.27     0.57 1.00    98844    38463
+## condScrambled:Itrial_ctrE2         -0.53      0.21    -0.95    -0.11 1.00    99312    37416
+## snr_ctr:condScrambled:trial_ctr    -1.67      0.78    -3.19    -0.14 1.00    63780    41853
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma   118.36      2.84   112.94   124.03 1.00    48266    36353
+## sigma   118.35      2.85   112.93   124.07 1.00    48678    32937
 ## 
 ## Draws were sampled using sampling(NUTS). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<pre class="r"><code># set.seed(1)
+<pre class="r"><code># Compute Bayes factors for model comparisons
+# set.seed(1)
 # bayes_factor(fm2_bayes, fm1_bayes)
 # set.seed(1)
 # bayes_factor(fm3_bayes, fm2_bayes)</code></pre>

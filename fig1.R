@@ -1,6 +1,7 @@
 # This script reproduces Fig. 1 of the manuscript "Pupillometry is sensitive to
-# speech masking during story listening: The critical role of modeling temporal
-# trends" by Andreas Widmann, Björn Herrmann, and Florian Scharf.
+# speech masking during story listening: a commentary on the critical role of
+# modeling temporal trends" by Andreas Widmann, Björn Herrmann, and Florian
+# Scharf.
 #
 # Authors: Florian Scharf, florian.scharf@uni-kassel.de and Andreas Widmann, widmann@uni-leipzig.de
 # Copyright (c) 2024 Florian Scharf, University of Kassel and Andreas Widmann, Leipzig University
@@ -20,14 +21,21 @@ okabe <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D
 # Import data
 load(file = "data.Rdata")
 
-#### Panel A: Grand-average time course
+#### Panel A: Grand average time course
 
+# Compute pupil area grand average per condition and trial over participants
 dat_cond_trial <- dat %>%
   group_by(cond, trial) %>%
   summarise(pupil_area_sd = sd(pupil_area), pupil_area_mean = mean(pupil_area))
+
+# Compute CIs
 n <- nlevels(dat$subj)
+dat_cond_trial$lcl <- dat_cond_trial$pupil_area_mean - dat_cond_trial$pupil_area_sd / sqrt(n) * qt(0.975,df = n - 1)
+dat_cond_trial$ucl <- dat_cond_trial$pupil_area_mean + dat_cond_trial$pupil_area_sd / sqrt(n) * qt(0.975,df = n - 1)
+
+# Plot pupil area grand average
 ggplot(dat_cond_trial, aes(x = trial, y = pupil_area_mean, col = cond)) +
-  geom_ribbon(aes(min = pupil_area_mean - pupil_area_sd / sqrt(n) * 1.96, max = pupil_area_mean + pupil_area_sd / sqrt(n) * 1.96, fill = cond), color = NA, alpha = 0.15) +
+  geom_ribbon(aes(min = lcl, max = ucl, fill = cond), color = NA, alpha = 0.15) +
   geom_line() +
   geom_point(shape = 16, size = 2) +
   facet_grid(~ "Grand-average") +
