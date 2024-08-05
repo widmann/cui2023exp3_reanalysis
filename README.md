@@ -23,10 +23,10 @@
 
 ## Repository structure
 The scripts contain the following parts of the analyses: 
-* import_data: convert csv into a data.frame in R with readable labels etc.
-* estimate_models: estimate initial Mixed Models in lme4 (all outputs available in respective HTML file)
-* estimate_bayes_models: estimate the more complex Mixed Models in brms (the large results file available on request)
-* report_bayes_models: extracts the model outputs from the bayes models (all outputs available in respective HTML file)
+* 01_import_data: convert csv into a data.frame in R with readable labels etc.
+* 02_estimate_models: estimate initial Mixed Models in lme4 (all outputs available in respective HTML file)
+* 03_estimate_bayes_models: estimate the more complex Mixed Models in brms (the large results file available on request)
+* 04_report_bayes_models: extracts the model outputs from the bayes models (all outputs available in respective HTML file)
 * fig: scripts to recreate all results figures and illustrative figures
 
 ## Comments
